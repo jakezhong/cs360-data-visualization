@@ -1,0 +1,17 @@
+geo_region,price_category_code,passenger_count
+US,Other,382195799
+South America,Other,250822
+Middle East,Other,3605077
+Mexico,Other,11511070
+Europe,Other,40430639
+Central America,Other,2500147
+Canada,Other,20056794
+Australia / Oceania,Other,7265835
+Asia,Other,62921576
+US,Low Fare,105613127
+Middle East,Low Fare,9107
+Mexico,Low Fare,1063957
+Europe,Low Fare,19400
+Canada,Low Fare,42314
+Australia / Oceania,Low Fare,7238
+Asia,Low Fare,66344
