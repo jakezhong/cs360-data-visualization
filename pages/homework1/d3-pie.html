@@ -11,6 +11,20 @@
 		<link rel="stylesheet" href="../../ui/css/style.css">
 		<script src="../../ui/vendor/d3.v5.min.js"></script>
 		<title>CS360/560 Data Visualization</title>
+		<style>
+			.arc text {
+				font: 10px sans-serif;
+				text-anchor: middle;
+			}
+
+			.arc path {
+				stroke: #fff;
+			}
+
+			.title {
+				font-weight: bold;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="full-page">
@@ -122,114 +136,39 @@
 						<div class="container">
 						  	<!-- Begin page content -->
 						  	<div class="content">
-								<h2 id="visualizations">Visualizations</h2>
+								<h2 id="visualizations">D3 Version Pie Chart</h2>
 
 								<p>Ideally not everything would be on a single page like this example. Instead, you might want to put each section in its own webpage. You would need to carefully replicate the page template (with the header, navbar, and footer) and make the necessary updates. For example, you want the "About" navbar item to be considered active on an "About" web page.</p>
 
 								<p>For now this is just a demo. The buttons below do not go anywhere, but can be easily changed to link to different visualization pages.</p>
 
+								<h3>Other D3 Projects</h3>
 								<p class="buttons">
-								  	<a class="btn btn-lg btn-teal" href="area.html">
-										<span class="icon is-medium">
-										  <i class="fas fa-chart-area"></i>
-										</span>
-										<span>Area Chart</span>
-								  	</a>
-								  	<a class="btn btn-lg btn-cyan" href="bar.html">
+								  	<a class="btn btn-lg btn-cyan" href="d3-bar.html">
 										<span class="icon is-medium">
 										  <i class="fas fa-chart-bar"></i>
 										</span>
 										<span>Bar Chart</span>
 								  	</a>
-								  	<a class="btn btn-lg btn-pink" href="pie.html">
+								  	<a class="btn btn-lg btn-pink" href="d3-pie.html">
 										<span class="icon is-medium">
 										  <i class="fas fa-chart-pie"></i>
 										</span>
 										<span>Pie Chart</span>
 								  	</a>
 								</p>
-								<div class="work-images">
-									<div class="d3-bar-chart"></div>
-									<script>
-										let width = 960;
-										let height = 500;
-										  	var svg = d3.select(".d3-bar-chart").append("svg")
-										  	.attr("viewBox", [0, 0, width, height]);
-
-										 
-											var dataset = d3.csv("data/bar.csv");
-											dataset.
-											then(function(data) {
-												data.map(function(d) {
-													d.geo_region = +d.geo_region;
-													return d;
-												});
-											}).catch(function(error) {
-												console.log(error);
-											});
-										
-										  svg.append("g")
-											  .attr("fill", "steelblue")
-											.selectAll("rect")
-											.data(dataset)
-											.join("rect")
-											  .attr("x", (d, i) => x(i))
-											  .attr("y", d => y(d.value))
-											  .attr("height", d => y(0) - y(d.value))
-											  .attr("width", x.bandwidth());
-
-										  svg.append("g")
-											  .call(xAxis);
-
-										  svg.append("g")
-											  .call(yAxis);
-										
-//										var width = 960;
-//										var height = 500;
-//										var adj = 20;
-//										// we are appending SVG first
-//										var svg = d3.select(".d3-bar-chart").append("svg")
-//										.attr("preserveAspectRatio", "xMinYMin meet")
-//										.attr("viewBox", "-" + adj + " -"+ adj + " " + (width + adj) + " " + (height + adj))
-//										.style("padding", 5)
-//										.style("margin", 5)
-//										.classed("svg-content", true);
-//										 
-//										var dataset = d3.csv("data/bar.csv");
-//										dataset.
-//											then(function(data) {
-//												data.map(function(d) {
-//													d.geo_region = +d.geo_region;
-//													return d;
-//												});
-//											}).catch(function(error) {
-//												 console.log(error);
-//										 	});
-//										
-//										dataset.then(function(data) { 
-//											svg.selectAll("div")
-//											.data(data)
-//											.enter()
-//											.append("rect")
-//											.attr("class", "bar")
-//											.attr("x", function (d, i) {
-//												console.log(d);
-//												for (i > 0; i < data.length; i++) {
-//													return i * 21;
-//												}
-//											})
-//											.attr("y", function (d) {
-//												return height - (d.passenger_count*10);
-//											})
-//											.attr("width", 20)
-//											.attr("height", function (d) {
-//												return d.passenger_count*10;
-//											});
-//										});
-									</script>
+								<div class="card work-images">
+									<div class="card-header">
+									  <h2>D3 Pie Chart</h2>
+									</div>
+									<div class="card-body card-body-p">
+									  	<div class="chart-container">
+											<div class="d3-pie-chart"><svg width="960" height="500"></svg></div>
+									  	</div>
+									</div>
 								</div>
 								<p>You will likely need to include instructions on how to interpet and use the visualization. In the case above, if you click the three dots <i class="fas fa-ellipsis-h has-text-grey-light	"></i> above it will open a menu where you can either save the visualization to a SVG or PNG, or alternatively open it up in the online Vega Editor.</p>
-
+								<p>Credit: this image is built based on the example on <a href="https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js" target="_blank">https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js</a></p>
 								<h4>Discussion</h4>
 
 								<p>You may also need other sections, like a discussion section, per-visualization section on data wrangling, and others. Because of the extra content and code visualizations take, it might be worthwhile to break up your pages into one home page and then one page per visualization.</p>
@@ -251,6 +190,56 @@
 				</div>
 			</div>
 		</div>
+		<script>
+			var svg = d3.select(".d3-pie-chart svg"),
+				width = svg.attr("width"),
+				height = svg.attr("height"),
+				radius = Math.min(width, height) / 2;
+
+			svg.append("g")
+			   .attr("transform", "translate(" + (width / 2 - 205) + "," + 20 + ")")
+			   .append("text")
+			   .text("Boarding Area and sum of Passenger Count")
+			   .attr("class", "title");
+
+			var g = svg.append("g")
+					   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+			var color = d3.scaleOrdinal(['#1f77b4','#ff7f0e','#2ca02c','#d62728','#8c564b','#ffd94a','#9467bd']);
+
+			var pie = d3.pie().value(function(d) { 
+					return d.passenger_count; 
+				});
+
+			var path = d3.arc()
+						 .outerRadius(radius - 50)
+						 .innerRadius(0);
+
+			var label = d3.arc()
+						  .outerRadius(radius)
+						  .innerRadius(radius - 80);
+
+			var dataset = d3.csv("data/pie.csv");
+
+			dataset.then(function(data) {
+				var arc = g.selectAll(".arc")
+						   .data(pie(data))
+						   .enter().append("g")
+						   .attr("class", "arc");
+
+				arc.append("path")
+				   .attr("d", path)
+				   .attr("fill", function(d) { return color(d.data.boarding_area); });
+
+				console.log(arc)
+
+				arc.append("text")
+				   .attr("transform", function(d) { 
+							return "translate(" + label.centroid(d) + ")"; 
+					})
+				   .text(function(d) { return d.data.boarding_area; });
+				});
+		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>
 		<script src="../../ui/vendor/bootstrap.min.js"></script>

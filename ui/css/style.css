@@ -226,15 +226,15 @@ body {
 /* != SELECTION STYLES (Leaving these blank will show no indication of text selection) ===== */
 
 ::selection {
-	background: #3a92ff;
+	background: #6610f2;
 	color: #fff;
 }
 ::-moz-selection {
-	background: #3a92ff;
+	background: #6610f2;
 	color: #fff;
 }
 ::-webkit-selection {
-	background: #3a92ff;
+	background: #6610f2;
 	color: #fff;
 }
 
@@ -16249,4 +16249,7 @@ table.grades tbody tr td:nth-child(2) {
 .grades .btn-flat-success {
 	margin: 0;
 	padding: 0;
+}
+.full-page {
+	user-select: auto !important;
 }
