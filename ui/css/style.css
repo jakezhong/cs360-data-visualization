@@ -16253,3 +16253,18 @@ table.grades tbody tr td:nth-child(2) {
 .full-page {
 	user-select: auto !important;
 }
+
+
+h1.section-title, h2.section-title, h3.section-title, h4.section-title, h5.section-title, h6.section-title {
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+
+h1.section-title.top-space, h2.section-title.top-space, h3.section-title.top-space, h4.section-title.top-space, h5.section-title.top-space, h6.section-title.top-space {
+	margin-top: 25px;
+}
+hr.space {
+	display: block;
+	margin: 30px 0;
+}
