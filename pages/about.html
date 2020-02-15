@@ -30,7 +30,7 @@
 							<ul class="list-nav sidebar-nav list-nav-dark list-nav-dark-info">
 								<li class="list-nav-group-title">
 									<span>
-									  HOME
+									  ABOUT
 									</span>
 								</li>
 								<li class="list-nav-item">
@@ -126,7 +126,7 @@
 						</button>
 
 						<div class="navbar-text ml-3 d-none d-sm-block">
-							<h5 class="m-0 text-dark">Home</h5>
+							<h5 class="m-0 text-dark">About</h5>
 						</div>
 
 						<div class="ml-auto d-sm-flex ml-3">
@@ -167,54 +167,75 @@
 					</nav>
 				</div>
 				<div class="page-content">
-					<section class="section">
+					<section class="profile">
 						<div class="container">
-					  <!-- Begin page content -->
-					  <div class="content">
-						<h1 class="title">
-							<p>About Me</p>
-						</h1>
-						  
-						<!-- Profile box -->
-						<!-- https://bulma.io/documentation/layout/media-object/ -->
-						<article class="media">
-							<!-- TODO: Replace with profile photo -->
-							<div class="profile">
-								<div class="profile-top d-sm-flex">
-									<figure class="profile-image">
-										<p class="image"><img src="../ui/images/profile.jpg"></p>
-									</figure>
-									<div class="profile-info">
-										<h5><a href="https://jakezhong.com" target="_blank">Jake Zhong</a></h5>
-										<ul>
-										  <li><b>Major:</b> Computer Science Bridge</li>
-										  <li><b>Expected graduation year:</b> 2022</li>
-										  <li><i class="fas fa-envelope"></i> <a href="mailto:jzhong1@dons.usfca.edu">jzhong1@dons.usfca.edu</a></li>
-										</ul>	
+							<h1 class="section-title">About Author</h1>
+							<div class="row">
+								<div class="col-lg-5 col-12">
+									<div class="card">
+										<div class="card-body p-0">
+											<div class="cover" style="max-height:15rem; overflow: hidden;">
+												<img src="../ui/images/profile-cover.png" alt="Profile Cover" class="img-fluid">
+											</div>
+											<div class="photo text-center pull-up-lg">
+												<img src="../ui/images/profile.jpg" alt="Profile Photo" class="img-thumb-xxl">
+											</div>
+											<div class="title text-center py-4">
+												<h4 class="name">Jake Zhong</h4>
+												<p class="text-secondary">MSCS Student at USF</p>
+												<a href="mailto:jzhong1@dons.usfca.edu">
+													<button class="btn btn-outline-info">
+													Contact
+													</button>
+												</a>
+											</div>
+										</div>
 									</div>
 								</div>
-								<!-- TODO: Replace with brief biography -->
-								<h3>Biography</h3>
-								<p>Hi there! This is Jake Zhong. I am from Guangdong China and I am currently a Computer Science student at University of San Francisco. I've lived and worked in Boston for 5 years.</p>
-								<p>I love programming, and my dream is to make the world a better place by coding. I like things relavant to Web development, such as website, web game and web application.</p>
-							  	<h3>Skills</h3>
-							  	<div class="tags">
-									<span class="tag btn-sm btn-dark">Python</span>
-									<span class="tag btn-sm btn-dark">C</span>
-									<span class="tag btn-sm btn-dark">Java</span>
-									<span class="tag btn-sm btn-dark">JavaScript</span>
-									<span class="tag btn-sm btn-dark">HTML/CSS</span>
-									<span class="tag btn-sm btn-dark">Vuejs</span>
-									<span class="tag btn-sm btn-dark">Reactjs</span>
-							  	</div>
-							</div>
-							</div>
-						</article>
-						<!-- End profile box -->
+								<div class="col-lg-7 col-12">
+									<div class="card">
+										<div class="card-body px-0 py-2">
+											<ul class="nav nav-tabs nav-material" role="tablist">
+												<li class="nav-item">
+													<a class="nav-link active" data-toggle="tab" id="about-tab" href="#pabout" role="tab" aria-controls="pabout" aria-selected="true">ABOUT</a>
+												</li>
+												<li class="nav-item">
+													<a class="nav-link" data-toggle="tab" id="pcontact-tab" href="#pcontact" role="tab" aria-controls="pcontact" aria-selected="true">BIOGRAPHY</a>
+												</li>
 
-					  </div>
-					  <!-- End page content -->
-					</div>
+
+											</ul>
+											<div class="tab-content">
+												<div class="tab-pane show active" id="pabout" role="tabpanel" aria-labelledby="about-tab">
+													<div class="py-4 px-6">
+														<h6>About Me</h6>
+														<p class="mb-4 text-secondary"><b>Major:</b> Computer Science Bridge</p>
+														<p class="mb-4 text-secondary"><b>Expected graduation year:</b></b> 2022</p>
+														<p class="mb-4 text-secondary"><i class="fas fa-envelope"></i> </b> <a href="mailto:jzhong1@dons.usfca.edu">jzhong1@dons.usfca.edu</a></p>
+														<h6 class="section-title top-space">Skills</h6>
+														<div class="tags">
+															<span class="tag btn-sm btn-dark">Python</span>
+															<span class="tag btn-sm btn-dark">C</span>
+															<span class="tag btn-sm btn-dark">Java</span>
+															<span class="tag btn-sm btn-dark">JavaScript</span>
+															<span class="tag btn-sm btn-dark">HTML/CSS</span>
+															<span class="tag btn-sm btn-dark">Vuejs</span>
+															<span class="tag btn-sm btn-dark">Reactjs</span>
+														</div>
+													</div>
+												</div>
+												<div class="tab-pane" id="pcontact" role="tabpanel" aria-labelledby="pcontact-tab">
+													<div class="py-4 px-6">
+														<p class="mb-4 text-secondary">Hi there! This is Jake Zhong. I am from Guangdong China and I am currently a Computer Science student at University of San Francisco. I've lived and worked in Boston for 5 years.</p>
+														<p class="mb-4 text-secondary">I love programming, and my dream is to make the world a better place by coding. I like things relavant to web development, such as website, web game and web application</p>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>				
 					</section>
 				</div>
 			</div>

@@ -16212,6 +16212,9 @@ table .fc-head .fc-widget-header td, table .fc-head .fc-widget-header th, table 
 /* ==================================== */
 /* Customized Style */
 /* ==================================== */ 
+html {
+	background-color: #384149;
+}
 .list-nav-child.active a .list-nav-label {
 	color: #2184ff;
 }
@@ -16270,4 +16273,20 @@ hr.space {
 }
 div.space {
 	margin: 30px 0;
+}
+code, pre {
+    font-size: 0.75rem;
+    border-radius: 6px;
+    background-color: #f5f5f5;
+    border: 1px solid #C7CDD1;
+}
+pre {
+    color: #2D3B45;
+    display: block;
+    padding: 9px;
+    margin: 0 0 12px;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre;
+    white-space: pre-wrap;
 }

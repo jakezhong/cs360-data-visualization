@@ -30,7 +30,7 @@
 							<ul class="list-nav sidebar-nav list-nav-dark list-nav-dark-info">
 								<li class="list-nav-group-title">
 									<span>
-									  HOME
+									  HOMEWORK 1
 									</span>
 								</li>
 								<li class="list-nav-item">
@@ -126,7 +126,7 @@
 						</button>
 
 						<div class="navbar-text ml-3 d-none d-sm-block">
-							<h5 class="m-0 text-dark">Home</h5>
+							<h5 class="m-0 text-dark">Homework 1</h5>
 						</div>
 
 						<div class="ml-auto d-sm-flex ml-3">
@@ -193,6 +193,12 @@
 										<span>Pie Chart</span>
 								  	</a>
 								</p>
+								<hr class="space"/>
+								<h3 class="section-title">Discussion</h3>
+								<p>Sum of Passenger Count for each Activity Period Date Year.  Color shows sum of Passenger Count.  The marks are labeled by sum of Passenger Count. The view is filtered on Activity Period Date Year, which excludes 2005 and 2019. Passenger count is encoded by the size of the area, so larger area represent higher passenger count.</p>
+								<p>I used a calculated field to convert the "Activity Period" into a Date value and displayed them by year to make it look more clear. The calculation looks like:</p>
+								<pre>DATEPARSE("YYYYMM", STR([Activity Period]))</pre>
+								<p>Obviously, the passenger count increased every year as time goes by. In the year 2018, the passenger count has increased by about 62% compared to the year 2006.</p>
 								<div class="card work-images">
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
@@ -202,10 +208,6 @@
 									  	</div>
 									</div>
 								</div>
-								
-								<h4>Discussion</h4>
-
-								<p>You may also need other sections, like a discussion section, per-visualization section on data wrangling, and others. Because of the extra content and code visualizations take, it might be worthwhile to break up your pages into one home page and then one page per visualization.</p>
 					  		</div>
 						  <!-- End page content -->
 						</div>
