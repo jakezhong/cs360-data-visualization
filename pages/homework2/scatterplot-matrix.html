@@ -11,20 +11,57 @@
 		<link rel="stylesheet" href="../../ui/css/style.css">
 		<script src="../../ui/vendor/d3.v5.min.js"></script>
 		<title>CS360/560 Data Visualization</title>
-		<style>
-			.arc text {
-				font: 10px sans-serif;
-				text-anchor: middle;
-			}
+	<style>
+		.chart-container {
+			font-size: 14px;
+			font-weight: 300;
+		}
+		.legend-label {
+			font-size: 12px;
+		}
+		.legend-title {
+			font-size: 50px;
+			color: #000;
+			fill: #)00;
+		}
+		.axis,
+		.frame {
+		  shape-rendering: crispEdges;
+		}
 
-			.arc path {
-				stroke: #fff;
-			}
+		.axis line {
+		  stroke: #ddd;
+		}
 
-			.title {
-				font-weight: bold;
-			}
-		</style>
+		.axis path {
+		  display: none;
+		}
+
+		.cell text {
+		  font-weight: bold;
+		  text-transform: capitalize;
+		  fill: black;
+		}
+
+		.frame {
+		  fill: none;
+		  stroke: #aaa;
+		}
+
+		circle {
+		  fill-opacity: .7;
+		}
+
+		circle.hidden {
+		  fill: #ccc !important;
+		}
+
+		.extent {
+		  fill: #000;
+		  fill-opacity: .125;
+		  stroke: #fff;
+		}	
+	</style>
 	</head>
 	<body>
 		<div class="full-page">
@@ -45,7 +82,7 @@
 							<ul class="list-nav sidebar-nav list-nav-dark list-nav-dark-info">
 								<li class="list-nav-group-title">
 									<span>
-									  HOMEWORK 1
+									  HOMEWORK 2
 									</span>
 								</li>
 								<li class="list-nav-item">
@@ -101,6 +138,43 @@
 										</li>
 									</ul>
 								</li>
+								<li class="list-nav-item">
+									<a href="#" class="list-nav-link">
+									  	<span class="list-nav-icon">
+											<i class="material-icons">folder_open</i>
+									  	</span>
+									  	<span class="list-nav-label">Homework 2</span>
+									  	<span class="list-nav-expand">
+											<i class="material-icons">add</i>
+									  	</span>
+									</a>
+									<ul class="list-nav-child">
+										<li class="list-nav-item list-nav-child-item">
+										  <a href="#" class="list-nav-link">
+											<span class="list-nav-icon list-nav-icon-sm">
+											  <i class="material-icons">keyboard_arrow_right</i>
+											</span>
+											<span class="list-nav-label">Overview</span>
+										  </a>
+										</li>
+										<li class="list-nav-item list-nav-child-item">
+										  <a href="../homework2/scatterplot-matrix.html" class="list-nav-link">
+											<span class="list-nav-icon list-nav-icon-sm">
+											  <i class="material-icons">keyboard_arrow_right</i>
+											</span>
+											<span class="list-nav-label">Scatterplot Matrix</span>
+										  </a>
+										</li>
+										<li class="list-nav-item list-nav-child-item">
+										  <a href="../homework1/requirements.html" class="list-nav-link">
+											<span class="list-nav-icon list-nav-icon-sm">
+											  <i class="material-icons">keyboard_arrow_right</i>
+											</span>
+											<span class="list-nav-label">Requirements</span>
+										  </a>
+										</li>
+									</ul>
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -117,7 +191,7 @@
 						</button>
 
 						<div class="navbar-text ml-3 d-none d-sm-block">
-							<h5 class="m-0 text-dark">Homework 1</h5>
+							<h5 class="m-0 text-dark">Homework 2</h5>
 						</div>
 
 						<div class="ml-auto d-sm-flex ml-3">
@@ -180,12 +254,21 @@
 								</p>
 								<hr class="space"/>
 								<h3 class="section-title">Discussion</h3>
-								<p>Boarding Area and sum of Passenger Count. Color shows details about Boarding Area.  Size shows sum of Passenger Count. The larger size of area represents higher passenger count. The marks are labeled by Boarding Area.</p>
-								<p>Boarding area F has the largest percentage compared to the rest of boarding areas, and it is about twice as large as the second area. The rest of boarding areas share a similar porprotion of passengers. While other boarding area only has a tiny percentage, and only 200 passengers got on board from there.</p>
+								<p>Sum of Passenger Count for each GEO Region. Passenger count is encoded by the length of the bar, so longer bar represent higher passenger count.</p>
+								<p>In terms of the passenger count, US definitely has a dominant amount, which is about 5 times as big as the second region(Asia). Also, from all regions.</p>
 								<div class="card work-images">
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
-											<div class="d3-pie-chart"><svg width="960" height="500"></svg></div>
+											<figure>
+												<img src="../../assets/img/homework2/mobility-report-scatterplot-matrix.png" alt="mobility-report-scatterplot-matrix">
+											</figure>
+									  	</div>
+									</div>
+								</div>
+								<div class="card work-images">
+									<div class="card-body card-body-p">
+									  	<div class="chart-container">
+											<div class="d3-scatterplot-matrix"><svg width="960" height="960"></svg></div>
 									  	</div>
 									</div>
 								</div>
@@ -197,54 +280,146 @@
 			</div>
 		</div>
 		<script>
-			var svg = d3.select(".d3-pie-chart svg"),
-				width = svg.attr("width"),
-				height = svg.attr("height"),
-				radius = Math.min(width, height) / 2;
+			var	margin = 200,
+    			padding = 15,
+    			size = 150;
 
-			svg.append("g")
-			   .attr("transform", "translate(" + (width / 2 - 205) + "," + 20 + ")")
-			   .append("text")
-			   .text("Boarding Area and sum of Passenger Count")
-			   .attr("class", "title");
+			var svg = d3.select(".d3-scatterplot-matrix svg")
+				.append("g")
+				.attr("transform", "translate(" + padding + "," + padding / 2 + ")");
 
-			var g = svg.append("g")
-					   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+			var x = d3.scaleLinear()
+				.range([padding / 2, size - padding / 2]);
 
-			var color = d3.scaleOrdinal(['#1f77b4','#ff7f0e','#2ca02c','#d62728','#8c564b','#ffd94a','#9467bd']);
+			var y = d3.scaleLinear()
+				.range([size - padding / 2, padding / 2]);
 
-			var pie = d3.pie().value(function(d) { 
-					return d.passenger_count; 
-				});
+			var xAxis = d3.axisBottom()
+				.scale(x)
+				.ticks(6);
 
-			var path = d3.arc()
-						 .outerRadius(radius - 50)
-						 .innerRadius(0);
+			var yAxis = d3.axisLeft()
+				.scale(y)
+				.ticks(6);
 
-			var label = d3.arc()
-						  .outerRadius(radius)
-						  .innerRadius(radius - 80);
+			var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-			var dataset = d3.csv("data/pie.csv");
-
+			var dataset = d3.csv("data/mrc_table2.csv");
+			
 			dataset.then(function(data) {
-				var arc = g.selectAll(".arc")
-						   .data(pie(data))
-						   .enter().append("g")
-						   .attr("class", "arc");
-
-				arc.append("path")
-				   .attr("d", path)
-				   .attr("fill", function(d) { return color(d.data.boarding_area); });
-
-				console.log(arc)
-
-				arc.append("text")
-				   .attr("transform", function(d) { 
-							return "translate(" + label.centroid(d) + ")"; 
-					})
-				   .text(function(d) { return d.data.boarding_area; });
+				var domainByTrait = {},
+					traits = d3.keys(data[0]).filter(function(d) { return d !== "tier_name"; }),
+					n = traits.length;
+				
+				var legends = new Array();
+				
+				data.forEach(function(legend) {
+					legends.push(legend['tier_name']);
 				});
+				
+				
+				svg.append("g")
+				.attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+				traits.forEach(function(trait) {
+					domainByTrait[trait] = d3.extent(data, function(d) {
+						return Number(d[trait]);
+					});
+				});
+
+				xAxis.tickSize(size * n);
+				yAxis.tickSize(-size * n);
+
+				svg.selectAll(".x.axis")
+					.data(traits)
+					.enter().append("g")
+					.attr("class", "x axis")
+					.attr("transform", function(d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+					.each(function(d) {
+						x.domain(domainByTrait[d]);
+						d3.select(this).call(xAxis);
+					});
+
+				svg.selectAll(".y.axis")
+					.data(traits)
+					.enter().append("g")
+					.attr("class", "y axis")
+					.attr("transform", function(d, i) { return "translate(0," + i * size + ")"; })
+					.each(function(d) {
+						y.domain(domainByTrait[d]);
+						d3.select(this).call(yAxis);
+					});
+				
+				
+			  	var cell = svg.selectAll(".cell")
+					.data(cross(traits, traits))
+					.enter().append("g")
+					.attr("class", "cell")
+					.attr("transform", function(d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+					.each(plot);
+
+				// Titles for the diagonal.
+				cell.filter(function(d) { return d.i === d.j; }).append("text")
+					.attr("x", padding)
+					.attr("y", padding)
+					.attr("dy", "1em")
+					.text(function(d) { return d.x; });
+
+			  	function plot(p) {
+					var cell = d3.select(this);
+
+					x.domain(domainByTrait[p.x]);
+					y.domain(domainByTrait[p.y]);
+
+					cell.append("rect")
+						.attr("class", "frame")
+						.attr("x", padding / 2)
+						.attr("y", padding / 2)
+						.attr("width", size - padding)
+						.attr("height", size - padding);
+
+					cell.selectAll("circle")
+						.data(data)
+						.enter().append("circle")
+						.attr("cx", function(d) { return x(d[p.x]); })
+						.attr("cy", function(d) { return y(d[p.y]); })
+						.attr("r", 4)
+						.style("fill", function(d) { return color(d.tier_name); });
+					
+					var legend_size = 12;
+					
+					// Add one dot in the legend for each name.
+					
+					svg.selectAll("legend-rects")
+						.data(data)
+					    .enter()
+					    .append("rect")
+						.attr("x", 760)
+						.attr("y", function(d,i){ return i * (legend_size+5)})
+						.attr("width", legend_size)
+						.attr("height", legend_size)
+						.attr("class", "legend-rect")
+						.style("fill", function(d) { return color(d.tier_name); });
+
+					// Add one dot in the legend for each name.
+					svg.selectAll("legend-labels")
+						.data(data)
+						.enter()
+						.append("text")
+						.attr("x", 760 + legend_size * 1.5)
+    					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2)})
+						.text(function(d){ return d.tier_name; })
+						.attr("text-anchor", "left")
+						.style("alignment-baseline", "middle")
+						.attr("class", "legend-label")
+						.style("fill", function(d) { return color(d.tier_name); });
+				}
+			});
+			function cross(a, b) {
+			  var c = [], n = a.length, m = b.length, i, j;
+			  for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
+			  return c;
+			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>
