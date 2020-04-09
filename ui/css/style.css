@@ -16215,6 +16215,9 @@ table .fc-head .fc-widget-header td, table .fc-head .fc-widget-header th, table 
 html {
 	background-color: #384149;
 }
+img {
+	max-width: 100%;
+}
 .list-nav-child.active a .list-nav-label {
 	color: #2184ff;
 }
