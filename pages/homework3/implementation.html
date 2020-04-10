@@ -180,7 +180,7 @@
 									</a>
 									<ul class="list-nav-child">
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="overview.html" class="list-nav-link">
+										  <a href="../homework2/overview.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -188,7 +188,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="#" class="list-nav-link">
+										  <a href="../homework2/scatterplot-matrix.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -196,7 +196,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="requirements.html" class="list-nav-link">
+										  <a href="../homework2/requirements.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -229,7 +229,7 @@
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
-											<span class="list-nav-label">Scatterplot Matrix</span>
+											<span class="list-nav-label">Implementations</span>
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
@@ -332,20 +332,71 @@
 						<div class="container">
 						  	<!-- Begin page content -->
 						  	<div class="content">
-								<h3 class="section-title">Discussion</h3>
-								<p>The x-axis and y-axis have the same rows and columns: they are:</p>
+								<h3 class="section-title">Data Encoding</h3>
 								<ul>
-									<li>Sum of K 0Inc</li>
-									<li>sum of K Rank</li>
-									<li>sum of K Top1Pc</li>
-									<li>sum of Par Rank</li>
-									<li>sum of Par Top1Pc</li>
+									<li>
+										<p><b>Basemap: </b>Neighborhoods of SF area</p>
+									</li>
+									<li>
+										<p><b>Color/Legend: </b>Range of case numbers</p>
+									</li>
+									<li>
+										<p><b>Circle: </b>Individual case</p>
+									</li>
+									<li>
+										<p><b>Tooltip: </b>Neighborhood information</p>
+									</li>
+									<li>
+										<p><b>Detail Panel: </b>Case information</p>
+									</li>
 								</ul>
-								<p>Color shows details about Tier Name.</p>
-								<h3 class="section-title top-space">Analysis</h3>
-								<p>Overall, in terms of tier names, the data shows a increasing trend from left to right, which means the higher/larger the data of the row results in a higher/larger data of column as well. In particular, Selective private, Two-year (public and private not-for-profit) have the highest number.</p>
-								<p>Most of the tiers stay at the left-down corner, such as Four-year for-profit, Highly selective private and Ivy Plus, while Selective private always stays at the top and has the highest number than others. The size of data in the middle of the row varies and differs time by time.</p>
-								<p>In conclusion, parent on the top 1% tends to send their kid to Selective private and Two-year (public and private not-for-profit) schools. Besides, kids from Selective private and Two-year (public and private not-for-profit) schools usually have higher rank and income.</p>
+								<hr class="space"/>
+								<h3 class="section-title top-space">Interactivity Guide</h3>
+								<h4 class="section-title top-space">Tooltip</h4>
+								<figure>
+									<p><img src="../../assets/img/homework3/interactivity1.gif" alt=""></p>
+									<figcaption>Hovering on a map's block will display a tooltip box and it will follow the user's mouse cursor.</figcaption>
+								</figure>
+								<h4 class="section-title top-space">Detail Panel</h4>
+								<figure>
+									<p><img src="../../assets/img/homework3/interactivity2.gif" alt=""></p>
+									<figcaption>Hovering on a map's circle will display a detail panel on the top-left corner of the map.</figcaption>
+								</figure>
+								<h4 class="section-title top-space">Zooming</h4>
+								<figure>
+									<p><img src="../../assets/img/homework3/interactivity3.gif" alt=""></p>
+									<figcaption>Zooming can be done by scrolling down or up on the map.</figcaption>
+								</figure>
+								<h4 class="section-title top-space">Dragging</h4>
+								<figure>
+									<p><img src="../../assets/img/homework3/interactivity4.gif" alt=""></p>
+									<figcaption>Pressing and moving the mouse on the map at the same time can drag the map around.</figcaption>
+								</figure>
+								<hr class="space"/>
+								<h3 class="section-title">Data Wrangling</h3>
+								<h4 class="section-title">API Request Filter</h4>
+								<p>I adjusted the SQL for the API request in order to only fetched the data of the category "Parking Enforcement" in February 2020.</p>
+								<script src="https://gist.github.com/jakezhong/085eeca6b8f4c24c4dd1629ec533d83d.js"></script>
+								<h4 class="section-title">Accumulation for neighborhood's case numbers</h4>
+								<p>In the original dataset, each neighborhood doesn’t have an accumulation of the case numbers, so I read all the cases and plus the number by the neighborhood in their properties. Here I use a set to avoid duplication and afterward, I convert the set to an array, which is more friendly for d3 implementation.</p>
+								<script src="https://gist.github.com/jakezhong/5d759d74f2ec9a6aee38b1b4373a04f2.js"></script>
+								<hr class="space"/>
+								<h3 class="section-title">Conclusion</h3>
+								<ul>
+									<li>Among all neighborhoods, the largest case number is 82 and the smallest case number is 0 in February 2020.</li>
+									<li>Most of the neighborhoods in the SF area see a very small number of cases, from 0 - 10. While a few neighborhoods have many more case numbers, for example, Mission has 82 and Outer Richmond has 68 cases in February 2020.</li>
+									<li>Among all the cases, by the date I fetched, most of them are already closed, and there are only about 10 opened cases in total in the SF area in February 2020.</li>
+								</ul>
+								<hr class="space"/>
+								<h3 class="section-title">Attribution</h3>
+									<p>For this project, I referred some D3 examples, such as non-proportional symbol map from our lab exercise, legend, color scale and zooming interactivity on the web.</p>
+									<h4 class="section-title top-space">References</h4>
+									<p>
+										<a href="https://www.d3-graph-gallery.com/graph/custom_legend.html" target="_blank">D3 Graph Gallery: D3 Legend Example</a><br/>
+										<a href="https://bl.ocks.org/mbostock/8fadc5ac9c2a9e7c5ba2" target="_blank">Map Pan & Zoom I</a><br/>
+										<a href="https://bl.ocks.org/hepplerj/f2f4e5f4a9321428b11614674c741177" target="_blank">Threshold scale</a><br/>
+										<a href="https://observablehq.com/@d3/color-schemes" target="_blank">Color Schemes</a>
+									</p>
 								<hr class="space"/>
 								<h3 class="section-title">D3 Implementation</h3>
 								<div class="card work-images">
@@ -378,8 +429,8 @@
 		<script>
 			const urls = {
 				basemap: "https://data.sfgov.org/resource/6ia5-2f8k.geojson",
-				streets: "https://data.sfgov.org/resource/3psu-pn9h.geojson?$limit=5000",
-				cases: "https://data.sfgov.org/resource/vw6y-z8j6.json",
+				streets: "https://data.sfgov.org/resource/3psu-pn9h.geojson?$limit=2000",
+				cases: "https://data.sfgov.org/resource/vw6y-z8j6.json"
 //				cases: "https://data.sfgov.org/resource/nwbb-fxkq.json"
 //				arrests: "https://data.sfgov.org/resource/nwbb-fxkq.json"
 			};
@@ -399,8 +450,9 @@
 
 			urls.cases += "?$where=starts_with(service_name, 'Parking Enforcement')";
 			urls.cases += " AND requested_datetime between '2020-02-01T00:00:00'";
-			urls.cases += " and '2020-02-29T00:00:00'";
+			urls.cases += " and '2020-02-29T23:59:59'";
 			urls.cases += " AND point IS NOT NULL";
+			console.log(urls.cases);
 			// output url before encoding
 			
 			// encode special characters
@@ -578,13 +630,8 @@
 					color_range.push(i * color_max/5);
 				}
 				
-//				console.log(color_range/7);
-//				console.log(7*color_range/7);
-//				console.log(color_range);
-				
 				colorScale = d3.scaleThreshold()
 				.domain(color_range)
-//				.range(d3.schemeBlues[5]);
 		  		.range(["#fff1de", "#fdd5a4", "#f88457", "#e55037", "#8e0000"]);
 			}
 			

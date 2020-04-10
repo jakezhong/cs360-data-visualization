@@ -98,7 +98,7 @@
 									</a>
 									<ul class="list-nav-child">
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="#" class="list-nav-link">
+										  <a href="../homework2/overview.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -106,7 +106,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="scatterplot-matrix.html" class="list-nav-link">
+										  <a href="../homework2/scatterplot-matrix.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -114,7 +114,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="requirements.html" class="list-nav-link">
+										  <a href="../homework2/requirements.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -147,7 +147,7 @@
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
-											<span class="list-nav-label">Scatterplot Matrix</span>
+											<span class="list-nav-label">Implementations</span>
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
@@ -204,7 +204,7 @@
 							<i class="material-icons">menu</i>
 						</button>
 						<div class="navbar-text ml-3 d-none d-sm-block">
-							<h5 class="m-0 text-dark">Homework 2</h5>
+							<h5 class="m-0 text-dark">Homework 3</h5>
 						</div>
 						<div class="ml-auto d-sm-flex ml-3">
 							<ul class="navbar-nav">
@@ -247,85 +247,158 @@
 					<section class="page-heading">
 						<div class="container">
 							<h1 class="section-title">
-								<p>Homework 2, by <a href="https://jakezhong.com" target="_blank">Jake Zhong</a></p>
+								<p>Homework 3, by <a href="https://jakezhong.com" target="_blank">Jake Zhong</a></p>
 							</h1>
 							<p class="subtitle">
-								For this homework assignment, I have used a Scatterplot Matrix in D3.js (version 5) to visualize data from the "<a href="https://opportunityinsights.org/paper/mobilityreportcards/">Mobility Report Cards: The Role of Colleges in Intergenerational Mobility</a>" project, written by Raj Chetty, John Friedman, Emmanuel Saez, Nicholas Turner, Danny Yagan, on December 2017.
+								For this homework assignment, I have used a Non-Proportional Symbol Map in D3.js (version 5) to visualize data from the "<a href="https://data.sfgov.org/City-Infrastructure/311-Cases/vw6y-z8j6" target="_blank">SF 311 dataset</a>.
 							</p>
 						</div>
 					</section>
 					<section class="project-overview">
 						<div class="container">
 							<hr class="space"/>
-							<h2 class="section-title">Data</h2>
-							<p>The original dataset for this project is the “Baseline Cross-Sectional Estimates of Child and Parent Income Distributions by College” dataset (also referred to as “Online Data Table 2”). The direct links are:</p>
-							<p><a href="https://opportunityinsights.org/wp-content/uploads/2018/04/mrc_table2.csv">mrc_table2.csv</a><br>
-								<a href="https://opportunityinsights.org/wp-content/uploads/2018/04/Codebook-MRC-Table-2.pdf" target="_blank">Codebook-MRC-Table-2.pdf</a></p>
-							<h3>Data Description</h3>
-							<p>This table reports the baseline estimates of parents’ and children’s income distributions by college. The authors calculate college-level values as means over students in the 1980, 1981 and 1982 birth cohorts. When data for a college from any of these cohorts are incomplete, they use data from 1983 and 1984 cohorts to obtain an estimate. See the codebook for Online Data Table 1 for definitions of income variables, college attendance, and other details.</p>
-							<p>In some cases, multiple colleges share a single identifier in the tax records (e.g., the campuses of the University of Massachusetts or University of Illinois systems). In these cases (denoted by multi = 1 in the dataset), they report averages over all students attending the relevant group of colleges. For these groups of colleges, we assign locations based on the location of the largest school/campus with the group of colleges.</p>
-							<p>This data was accessed on Feb 26, 2020 and by this date, the authors characterize  intergenerational  income  mobility  at  each  college  in  the  United  States  using data  for  over  30  million  college  students  from  1999-2013. The dataset 36 columns. Each column represents different aspects as shown below:</p>
-							<ol>
-								<li>Super Opeid</li>
-								<li>Name of college (or college group)</li>
-								<li>Type</li>
-								<li>Tier</li>
-								<li>Name of college tier</li>
-								<li>Iclevel</li>
-								<li>Region</li>
-								<li>State</li>
-								<li>Cz: Commuting zone ID</li>
-								<li>Czname: Commuting zone name</li>
-								<li>Cfips: Combined state and county fips code</li>
-								<li>County</li>
-								<li>Multi: Indicator that equals 1 if multiple colleges (IPEDS Unit IDs) are grouped in this Super OPEID</li>
-								<li>Count: Average number of kids per cohort</li>
-								<li>Female: Fraction female among kids</li>
-								<li>K Married: Fraction of kids married in 2014</li>
-								<li>Mr Kq5 Pq1: Mobility rate (joint probability of parents in bottom quintile and child in top quintile of the income distribution)</li>
-								<li>Mr Ktop1 Pq1: Upper-tail mobility rate (joint probability of parents in bottom quintile and child in top 1% of the income distribution)</li>
-								<li>Par Mean: Mean parental income</li>
-								<li>Par Median: Median parent household income (rounded to nearest $100)</li>
-								<li>Par Rank: Mean parental income rank</li>
-								<li>Par Q[PARQUINT]: Fraction of parents in an income quintile [PARQUINT]. 1 is the bottom quintile and 5 is the top.</li>
-								<li>Par Top[PCTILE]pc: Fraction of parents in the top percentile [PCTILE]. For instance, par_toppt1pc refers to parents in the top 0.1% of the income distribution.</li>
-								<li>K Rank: Mean kid earnings rank</li>
-								<li>K Mean: Mean kid earnings</li>
-								<li>K Median: Median child individual earnings in 2014 (rounded to the nearest $100)</li>
-								<li>K Median Nozero: Median child individual earnings among positive earners in 2014 (rounded to the nearest $100)</li>
-								<li>K 0inc: Fraction of kids with zero labor earnings</li>
-								<li>K Q[KIDQUINT]: Fraction of kids in an income quintile [KIDQUINT]. 1 is the bottom quintile and 5 is the top. </li>
-								<li>K Top[PCTILE]pc: Fraction of kids in the top percentile [PCTILE]. For instance, top1pc refers to children in the top 1% of the income distribution. </li>
-								<li>K Rank Cond Parq[PARQUINT]: Mean kid earnings rank conditional on parent in quintile [PARQUINT]</li>
-								<li>Kq[KIDQUINT] Cond Parq[PARQUINT]: Probability of kid in quintile [KIDQUINT] conditional on parent in quintile [PARQUINT]</li>
-								<li>Ktop1pc Cond Parq[PARQUINT]: Probability of kid in top 1% conditional on parent in quintile [PARQUINT]</li>
-								<li>K Married Cond Parq[PARQUINT]: Fraction of kids married conditional on parent in quintile [PARQUINT]</li>
-								<li>Shareimputed: Share of count-weighted data that was imputed using information from the 1983-84 cohorts</li>
-								<li>Imputed: Indicator if any data for that super_opeid was imputed</li>
-							</ol>
-							<p>This data doesn't have an official license, but the authors put out publicly available datasets that can be used by other researchers and practitioners to support their own work. Check out this link for more information about the public usage <a href="https://opportunityinsights.org/data/" target="_blank">https://opportunityinsights.org/data/</a>
+							<h2 class="section-title">Dataset</h2>
+							<p>This dataset includes cases generally associated with a place or thing (for example parks, streets, or buildings) and created July 1, 2008 or later. Cases generally logged by a user regarding their own needs (for example, property or business tax questions, parking permit requests) are not included. See the Program Link and detailed attachment below for more information.</p>
+							<h3 class="section-title top-space">Dataset Information</h3>
+							<p>I accessed this data on April 9, 2020 and by the date I fetched it, it had the following details.</p>
+							<ul>
+								<li><b>Data Last Updated: </b>April 9, 2020</li>
+								<li><b>Metadata Last Updated: </b>January 30, 2020</li>
+								<li><b>Date Created: </b>October 8, 2011</li>
+								<li><b>Data Provided by: </b>San Francisco 311</li>
+								<li><b>Dataset Owner: </b>AndyM</li>
+								<li><b>Publishing Department: </b>311</li>
+								<li><b>Geographic unit: </b>Latitude/longitude</li>
+								<li><b>Program link: </b><a href="https://support.datasf.org/help/311-case-data-faq" target="_blank">https://support.datasf.org/help/311-case-data-faq</a></li>
+								<li><b>Publishing frequency: </b>Daily</li>
+								<li><b>Data change frequency: </b>Multiple times per hour</li>
+							</ul>
+							<h3 class="section-title top-space">Dataset Analysis</h3>
+							<p>This dataset has 4.14M rows and 20 columns, while each row has 311 cases.</p>
+							<h4 class="section-title top-space">Columns in this dataset</h4>
+							<table class="table table-middle table-material rt-md">
+								<tr>
+									<th>Column Name</th>
+									<th>Description</th>
+									<th>Type</th>
+								</tr>
+								<tr>
+									<td>CaseID</td>
+									<td>The unique ID of the service request created.</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Opened</td>
+									<td>The date and time when the service request was made.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Closed</td>
+									<td>The date and time when the service request was closed.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Updated</td>
+									<td>The date and time when the service request was last modified. For requests with status=closed, this will be the date the request was closed.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Status</td>
+									<td>A single-word indicator of the current state of the service request. (Note: GeoReport V2 only permits ‘open’ and ‘closed’).</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Status Notes</td>
+									<td>Explanation of why status was changed to current state or more details on current status than conveyed with status alone.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Responsible Agency</td>
+									<td>The agency responsible for fulfilling or otherwise addressing the service request.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Category</td>
+									<td>The human readable name of the service request type.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Request Type</td>
+									<td>The human readable name of the service request subtype.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Request Details</td>
+									<td>The human readable name of the service request details.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Address</td>
+									<td>Human readable address or description of location.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Street</td>
+									<td>Primary Street of the associated address. Parks may have a park name instead of a street name. Requests not associated with an address will be blank.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Supervisor District</td>
+									<td>San Francisco Supervisor District as defined in 'Supervisor Districts as of April 2012'.</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Neighborhood</td>
+									<td>San Francisco Neighborhood as defined in 'SF Find Neighborhoods'.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Police District</td>
+									<td>San Francisco Police District as defined in 'Current Police Districts'.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Latitude</td>
+									<td>Latitude of the location, using the WGS84 projection.</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Longitude</td>
+									<td>Longitude of the location, using the WGS84 projection.</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Point</td>
+									<td>Combination of Latitude and Longitude for Socrata native maps.</td>
+									<td>Location</td>
+								</tr>
+								<tr>
+									<td>Source</td>
+									<td>Mechanism or path by which the service request was received; typically ‘Phone’, ‘Text/SMS’, ‘Website’, ‘Mobile App’, ‘Twitter’, etc but terms may vary by system.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Media URL</td>
+									<td>A URL to media associated with the request, e.g. an image.</td>
+									<td>Website URL</td>
+								</tr>
+							</table>
+							<h3 class="section-title top-space">Dataset License</h3>
+							<p>This dataset uses the <a href="https://datasf.org/opendata/terms-of-use/#toc8" target="_blank">Public Domain Dedication and License (PDDL).</a></p>
+							<p>Except where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: <a href="http://www.opendatacommons.org/licenses/pddl/1.0/" target="_blank">http://www.opendatacommons.org/licenses/pddl/1.0/</a></p>
 							<hr class="space"/>
 							
 							<h2 class="section-title top-space">Visualizations</h2>
 							
-							<p>For this project, I have created 1 prototype of Scatterplot Matrix generated by Tableau and 1 implementation of Scatterplot Matrix data visulization generated by D3 version 5.</p>
+							<p>For this project, I have created a Non-Proportional Symbol Map generated by D3 version 5.</p>
 							
 							<p class="buttons">
-								<a class="btn btn-lg btn-teal" href="scatterplot-matrix.html">
+								<a class="btn btn-lg btn-teal" href="implementation.html">
 									<span class="icon is-medium">
-									  <i class="fas fa-chart-scatter"></i>
+									  <i class="fas fa-map-marked-alt"></i>
 									</span>
-									<span>Scatterplot Matrix</span>
+									<span>Non-Proportional Symbol Map</span>
 								</a>
-							</p>
-							
-							<h4 class="section-title top-space">Acknowledgements</h4>
-							
-							<p>For this project, I referred some D3 examples, such as Scatterplot Matrix and Legend.</p>
-							<h4 class="section-title top-space">References</h4>
-							<p>
-							  <a href="https://www.d3-graph-gallery.com/graph/custom_legend.html" target="_blank">D3 Graph Gallery: D3 Legend Example</a><br/>
-							  <a href="https://observablehq.com/@d3/scatterplot-matrix" target="_blank">D3: D3 Scatterplot Matrix</a><br/>
 							</p>
 							<hr class="space"/>
 							<h2 class="section-title">Grade</h2>
@@ -344,22 +417,22 @@
 									<tr>
 										<td>D</td>
 							  			<td><i class="btn-flat-danger fas fa-times-circle"></i></td>
-										<td>Prototype and implement a bubble plot.</td>
+										<td>A visualization prototype in any other tool or language than D3v5.</td>
 									</tr>
 									<tr>
 										<td>C</td>
-							  			<td><i class="btn-flat-danger fas fa-times-circle"></i></td>
-										<td>Prototype and implement a normalized heatmap.</td>
+							  			<td><i class="btn-flat-success fas fa-check-circle"></i></td>
+										<td>A static visualization in D3v5 with a projected district or neighborhood base map.</td>
 									</tr>
 									<tr>
 										<td>B</td>
-							  			<td><i class="btn-flat-danger fas fa-times-circle"></i></td>
-										<td>Prototype and implement a small multiples visualization -or- both a bubble plot and heatmap.</td>
+							  			<td><i class="btn-flat-success fas fa-check-circle"></i></td>
+										<td>The C level requirements plus details-on-demand interactivity.</td>
 									</tr>
 									<tr>
 										<td>A</td>
-										<td><i class="btn-flat-success  fas fa-check-circle"></i></td>
-										<td>Prototype and implement a parallel coordinates visualization -or- a scatterplot matrix (choose one).</td>
+										<td><i class="btn-flat-success fas fa-check-circle"></i></td>
+										<td>The B level requirements plus either zoom, filter, or brush interactivity.</td>
 									</tr>
 								</tbody>
 							</table>
