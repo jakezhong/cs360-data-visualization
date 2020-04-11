@@ -52,20 +52,17 @@
 
 		#map .active {
 		  stroke: #0099ff !important;
-		  stroke-width: 3.5px !important;
 		}
 
 		#map circle.symbol {
 		  fill-opacity: 0.6;
 
 		  stroke: white;
-		  stroke-width: 1px;
 		}
 		#map circle.active {
 		  fill: #0099ff;
 		  fill-opacity: 0.8;
 		  stroke: #000 !important;
-		  stroke-width: 1px !important;
 		}
 		#map a:link, #map a:visited {
 		  color: #444444;
@@ -675,6 +672,7 @@
 				.attr("cx", d => d.x)
 				.attr("cy", d => d.y)
 				.attr("r", 5)
+			  	.style("stroke", 1)
 				.attr("class", "symbol")
     			.attr("transform", "translate(0," + 100 + ")")
 				.attr("fill", function(d) {
@@ -807,9 +805,10 @@
 				g.basemap.selectAll("path.land").attr('transform', d3.event.transform);
 				g.outline.selectAll("path.neighborhood").attr('transform', d3.event.transform);
 			  	g.streets.selectAll("path.street").attr('transform', d3.event.transform);
-				g.cases.selectAll("circle").attr('transform', d3.event.transform);
-				g.cases.selectAll("circle").attr("r", 5/d3.event.transform.k);
-				g.cases.selectAll("circle").style("stroke-width", 1/d3.event.transform.k);
+				g.cases.selectAll("circle")
+					.attr('transform', d3.event.transform)
+					.attr("r", 5/d3.event.transform.k)
+					.style("stroke-width", 1/d3.event.transform.k);
 			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
