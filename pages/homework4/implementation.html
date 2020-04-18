@@ -109,7 +109,7 @@
 							<ul class="list-nav sidebar-nav list-nav-dark list-nav-dark-info">
 								<li class="list-nav-group-title">
 									<span>
-									  HOMEWORK 3
+									  HOMEWORK 4
 									</span>
 								</li>
 								<li class="list-nav-item">
@@ -433,7 +433,7 @@
 				<div class="page-content">
 					<section class="section">
 						<div class="container">
-							<h1 class="section-title">Homework 3 Implementation</h1>
+							<h1 class="section-title">Homework 4 Implementation</h1>
 						  	<!-- Begin page content -->
 						  	<div class="content">
 								<hr class="space"/>
@@ -507,19 +507,13 @@
 								<div class="card work-images">
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
-									  		<div class="map-container">
-												<svg width="960" height="600" id="map">
-													<g id="basemap"></g>
-
-													<!-- turn off pointer events for certain groups -->
-													<g id="streets" pointer-events="none"></g>
-													<g id="outline" pointer-events="none"></g>
-
-													<g id="cases"></g>
+									  		<div class="implementation-container">
+												<svg width="960" height="500" id="tree-1">
+													<g id="tree"></g>
 													<g id="tooltip" pointer-events="none"></g>
 													<g id="details" pointer-events="none"></g>
 													<g id="legend" pointer-events="none"></g>
-										  		</svg>
+												</svg>
 									  		</div>
 									  	</div>
 									</div>
@@ -531,62 +525,31 @@
 				</div>
 			</div>
 		</div>
+		<script src="https://d3js.org/d3-hierarchy.v1.min.js"></script>
 		<script>
-			const urls = {
-				basemap: "https://data.sfgov.org/resource/6ia5-2f8k.geojson",
-				streets: "https://data.sfgov.org/resource/3psu-pn9h.geojson?$limit=2000",
-				cases: "https://data.sfgov.org/resource/vw6y-z8j6.json"
-//				cases: "https://data.sfgov.org/resource/nwbb-fxkq.json"
-//				arrests: "https://data.sfgov.org/resource/nwbb-fxkq.json"
-			};
+			const url = "https://data.sfgov.org/resource/nuek-vuh3.json";
 			
-			// calculate date range
-			const end = d3.timeDay.floor(d3.timeDay.offset(new Date(), -1));
-			const start = d3.timeDay.floor(d3.timeDay.offset(end, -7));
-			const format = d3.timeFormat("%Y-%m-%dT%H:%M:%S");
-			console.log(format(start), format(end));
-
-			// add parameters to arrests url
-//			urls.cases += "?$where=starts_with(resolution, 'Cite or Arrest')";
-//			urls.cases += " AND incident_date between '" + format(start) + "'";
-//			urls.cases += " and '" + format(end) + "'";
-//			urls.cases += " AND point IS NOT NULL";
-//			console.log(urls.cases);
-
-			urls.cases += "?$where=starts_with(service_name, 'Parking Enforcement')";
-			urls.cases += " AND requested_datetime between '2020-02-01T00:00:00'";
-			urls.cases += " and '2020-02-29T23:59:59'";
-			urls.cases += " AND point IS NOT NULL";
-			console.log(urls.cases);
-			// output url before encoding
-			
-			// encode special characters
-			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURI
-			urls.cases = encodeURI(urls.cases);
-			console.log(urls.cases);
-
 			const svg = d3
 				.select(".map-container")
-				.select("svg#map")
+				.select("svg#tree-1")
 			  	.attr("x", 0);
 			
 			let width = 960;
 			
 			let height = 500;
 			
-			let neighborhoods_set = d3.map();
-				
-			let neighborhoods = [];
+			let root = {
+				"name": "Fire Department",
+				"number": 0,
+				"children": []
+			};
 			
 			let color_range = [];
 			
 			var colorScale;
 			
 			const g = {
-			  basemap: svg.select("g#basemap"),
-			  streets: svg.select("g#streets"),
-			  outline: svg.select("g#outline"),
-			  cases: svg.select("g#cases"),
+			  tree1: svg.select("g#basemap"),
 			  tooltip: svg.select("g#tooltip"),
 			  details: svg.select("g#details"),
 			  legend: svg.select("g#legend")
@@ -607,7 +570,8 @@
 
 			// add details widget
 			// https://bl.ocks.org/mbostock/1424037
-			const details = g.details
+			const details = g
+				.details
 				.append("foreignObject")
 				.attr("id", "details")
 			  	.attr("width", width)
@@ -622,302 +586,329 @@
 
 			details.style("visibility", "hidden");
 
-			// setup projection
-			// https://github.com/d3/d3-geo#geoConicEqualArea
-			const projection = d3.geoConicEqualArea();
-			projection.parallels([37.692514, 37.840699]);
-			projection.rotate([122, 0]);
+			d3.json(url).then(function(json) {
+				console.log(json);
+//			neighborhoods_analysis_boundaries
+//				call_type
+				json.forEach(function(data) {
+					
+					root.number = root.number + 1;
+					
+					let neighborhoods = root.children.map(function(neighborhood) {
+						return neighborhood.name;
+					});
+					
+					let indexN = neighborhoods.indexOf(data.neighborhoods_analysis_boundaries);
+					
+					if (indexN > -1) {
+					
+						root.children[indexN].number = root.children[indexN].number + 1;
+						
+						let types = root.children[indexN].children.map(function(type) {
+							return type.name;
+						});
 
-			// setup path generator (note it is a GEO path, not a normal path)
-			const path = d3.geoPath().projection(projection);
+						let indexT = types.indexOf(data.call_type);
 
-			d3.json(urls.basemap).then(function(json) {
-				// makes sure to adjust projection to fit all of our regions
-				projection.fitSize([width, height], json);
-			
-				d3.json(urls.streets).then(drawStreets);
-				
-				d3.json(urls.cases).then(function(json) {
-					fillNeighborhood(json);
-					d3.json(urls.basemap).then(drawBasemap);
-					// draw the land and neighborhood outlines
-					drawCases(json);
-					drawLegend();
-				});
+						if (indexT > -1) {
+							root.children[indexN].children[indexT].number = root.children[indexN].children[indexT].number + 1;
+						} else {
+							let newType = {
+								"name": data.call_type,
+								"number": 1
+							}
 
-				// now that projection has been set trigger loading the other files
-				// note that the actual order these files are loaded may differ
-			});
-
-			function drawBasemap(json) {
-			  console.log("basemap", json);
-			
-			  const basemap = g.basemap.selectAll("path.land")
-				.data(json.features)
-				.enter()
-				.append("path")
-				.attr("d", path)
-				.attr("class", "land")
-    			.attr("transform", "translate(0," + 100 + ")")
-			    .attr("fill", function(d) {
-				  if (neighborhoods_set.get(d.properties.name)) {
-					  d.number = neighborhoods_set.get(d.properties.name).number;
-				  } else {
-					  d.number = 0;
-				  }
-				  return colorScale(d.number);
-			    });
-
-//			  console.table(neighborhoods_set);
-				
-			  const outline = g.outline.selectAll("path.neighborhood")
-				  .data(json.features)
-				  .enter()
-				  .append("path")
-				  .attr("d", path)
-				  .attr("class", "neighborhood")
-    			  .attr("transform", "translate(0," + 100 + ")")
-				  .each(function(d) {
-					// save selection in data for interactivity
-					// saves search time finding the right outline later
-					d.properties.outline = this;
-				  });
-
-			  // add highlight
-			  basemap.on("mouseover.highlight", function(d) {
-				d3.select(d.properties.outline).raise();
-				d3.select(d.properties.outline).classed("active", true);
-			  })
-			  .on("mouseout.highlight", function(d) {
-				d3.select(d.properties.outline).classed("active", false);
-			  });
-
-			  // add tooltip
-			  basemap.on("mouseover.tooltip", function(d) {
-				let html = d.properties.name;
-					html += "<br># of cases: " + d.number;
-				  
-				tip.html(html);
-				tip.style("visibility", "visible");
-			  })
-			  .on("mousemove.tooltip", function(d) {
-				const coords = d3.mouse(g.basemap.node());
-				tip.attr("x", coords[0] - 100);
-				tip.attr("y", coords[1] - 65);
-			  })
-			  .on("mouseout.tooltip", function(d) {
-				tip.style("visibility", "hidden");
-			  });
-			}
-			
-			// initialize a neighborhood list and store its case number
-			function fillNeighborhood(json) {
-				json.forEach(function(neighborhood) {
-					let name = neighborhood.neighborhoods_sffind_boundaries;
-					if (neighborhoods_set.has(name)) {
-						neighborhoods_set.get(name).number += 1;
+							root.children[indexN].children.push(newType);
+						}
 					} else {
-						neighborhoods_set.set(name, {name: name, number: 1});
+						let newType = {
+							"name": data.call_type,
+							"number": 1
+						}
+
+						let newNeighborhood = {
+							"name": data.neighborhoods_analysis_boundaries,
+							"number": 1,
+							"children": [newType]
+						}
+
+						root.children.push(newNeighborhood);
 					}
 				});
-				
-				neighborhoods_set.each(function(e) {
-					neighborhoods.push([e.name, e.number]);
-				});
-				
-				color_max = d3.max(neighborhoods.map(function(d) {
-					return d[1];
-				}));
-				
-				color_max = Math.ceil(color_max/100)*100;
-				
-				for (let i = 1; i < 6; i++) {
-					color_range.push(i * color_max/5);
-				}
-				
-				colorScale = d3.scaleThreshold()
-				.domain(color_range)
-		  		.range(["#fff1de", "#fdd5a4", "#f88457", "#e55037", "#8e0000"]);
-			}
+				console.log(root);
+
+			});
 			
-			function drawStreets(json) {
-			  console.log("streets", json);
-
-			  // only show active streets
-			  const streets = json.features.filter(function(d) {
-				return d.properties.active;
-			  });
-
-			  console.log("removed", json.features.length - streets.length, "inactive streets");
-
-			  g.streets.selectAll("path.street")
-				.data(streets)
-				.enter()
-				.append("path")
-				.attr("d", path)
-    			.attr("transform", "translate(0," + 100 + ")")
-				.attr("class", "street");
-			}
-						
-			function drawCases(json) {
-			  console.log("cases", json);
-
-			  // loop through and add projected (x, y) coordinates
-			  // (just makes our d3 code a bit more simple later)
-			  json.forEach(function(d) {
-				const latitude = parseFloat(d.lat);
-				const longitude = parseFloat(d.long);
-				const pixels = projection([longitude, latitude]);
-
-				d.x = pixels[0];
-				d.y = pixels[1];
-			  });
-
-			  const symbols = g.cases.selectAll("circle")
-				.data(json)
-				.enter()
-				.append("circle")
-				.attr("cx", d => d.x)
-				.attr("cy", d => d.y)
-				.attr("r", 5)
-			  	.style("stroke", 1)
-				.attr("class", "symbol")
-    			.attr("transform", "translate(0," + 100 + ")")
-				.attr("fill", function(d) {
-				  if (d.status_description != "Closed") {
-					return "red";
-				  }
-				  return;
-				});
-				
-			  symbols.on("mouseover", function(d) {
-				d3.select(this).raise();
-				d3.select(this).classed("active", true);
-
-				// use template literal for the detail table
-				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-			  	let formatDate = d3.timeFormat("%B %d, %Y");
-				  
-				const html = `
-				  <table class="info-table" border="0" cellspacing="0" cellpadding="2">
-				  <tbody>
-					<tr>
-					  <th>Service Name:</th>
-					  <td>${d.service_name}</td>
-					</tr>
-					<tr>
-					  <th>Date:</th>
-					  <td>${formatDate(new Date(d.requested_datetime))}</td>
-					</tr>
-					<tr>
-					  <th>Neighborhood:</th>
-					  <td>${d.neighborhoods_sffind_boundaries}</td>
-					</tr>
-					<tr>
-					  <th>Vehicle Details:</th>
-					  <td>${d.service_details}</td>
-					</tr>
-					<tr>
-					  <th>Status:</th>
-					  <td>${d.status_description}</td>
-					</tr>
-					<tr>
-					  <th>Description:</th>
-					  <td>${d.status_notes}</td>
-					</tr>
-				  </tbody>
-				  </table>
-				`;
-
-				body.html(html);
-				details.style("visibility", "visible");
-			  });
-
-			  symbols.on("mouseout", function(d) {
-				d3.select(this).classed("active", false);
-				details.style("visibility", "hidden");
-			  });
-			}
-
-			function drawLegend() {
-				let legend_height = 20;
-				let legend_width = 40;
-				
-			  	const legend = g.legend
-				    .attr("x", 0)
-				    .attr("y", 0);
-				
-				let background = legend
-					.append("rect")
-					.attr("width", 300)
-					.attr("height", 90)
-					.attr("x", 645)
-					.attr("y", 0)
-					.style("fill", "#fff");
-				
-				// Add one dot in the legend for each name.
-				let legend_title = legend
-					.append("text")
-				   	.attr("transform", "translate(100,0)")
-				   	.text("Total Cases")
-					.attr("x", 650)
-					.attr("y", 30)
-					.style("fill", "#000")
-				   	.attr("class", "legend-title");
-
-//				console.log(colorScale);
-				let legend_rect = legend.selectAll("legend-rects")
-					.data(colorScale.range())
-					.enter()
-					.append("rect")
-					.attr("x", function(d,i){ return 690 + i * legend_width })
-					.attr("y", 50)
-					.attr("width", legend_width)
-					.attr("height", legend_height)
-					.attr("class", "legend-rect")
-					.style("fill", function(d) {
-						return d;
-					});
-
-				// Legend labels
-				legend
-				.append("text")
-				.attr("x", 675)
-				.attr("y", 45)
-				.text("0")
-				.attr("text-anchor", "left")
-				.style("alignment-baseline", "middle")
-				.attr("class", "legend-label")
-				.style("fill", "#000");
-
-				legend
-				.append("text")
-				.attr("x", 895)
-				.attr("y", 45)
-				.text("100")
-				.attr("text-anchor", "left")
-				.style("alignment-baseline", "middle")
-				.attr("class", "legend-label")
-				.style("fill", "#000");
-			}
-			
-			// Zooming for the bars
-			const extent = [0, [width, height]];
-
-			svg.call(d3.zoom()
-			.scaleExtent([1, 4])
-			.extent([[0, 0], [width, height]])
-			.on("zoom", zoomed));
-
-			function zoomed() {
-				g.basemap.selectAll("path.land").attr('transform', d3.event.transform);
-				g.outline.selectAll("path.neighborhood").attr('transform', d3.event.transform);
-			  	g.streets.selectAll("path.street").attr('transform', d3.event.transform);
-				g.cases.selectAll("circle")
-					.attr('transform', d3.event.transform)
-					.attr("r", 5/d3.event.transform.k)
-					.style("stroke-width", 1/d3.event.transform.k);
-			}
+//
+//			function drawBasemap(json) {
+//			  console.log("basemap", json);
+//			
+//			  const basemap = g.basemap.selectAll("path.land")
+//				.data(json.features)
+//				.enter()
+//				.append("path")
+//				.attr("d", path)
+//				.attr("class", "land")
+//    			.attr("transform", "translate(0," + 100 + ")")
+//			    .attr("fill", function(d) {
+//				  if (neighborhoods_set.get(d.properties.name)) {
+//					  d.number = neighborhoods_set.get(d.properties.name).number;
+//				  } else {
+//					  d.number = 0;
+//				  }
+//				  return colorScale(d.number);
+//			    });
+//
+////			  console.table(neighborhoods_set);
+//				
+//			  const outline = g.outline.selectAll("path.neighborhood")
+//				  .data(json.features)
+//				  .enter()
+//				  .append("path")
+//				  .attr("d", path)
+//				  .attr("class", "neighborhood")
+//    			  .attr("transform", "translate(0," + 100 + ")")
+//				  .each(function(d) {
+//					// save selection in data for interactivity
+//					// saves search time finding the right outline later
+//					d.properties.outline = this;
+//				  });
+//
+//			  // add highlight
+//			  basemap.on("mouseover.highlight", function(d) {
+//				d3.select(d.properties.outline).raise();
+//				d3.select(d.properties.outline).classed("active", true);
+//			  })
+//			  .on("mouseout.highlight", function(d) {
+//				d3.select(d.properties.outline).classed("active", false);
+//			  });
+//
+//			  // add tooltip
+//			  basemap.on("mouseover.tooltip", function(d) {
+//				let html = d.properties.name;
+//					html += "<br># of cases: " + d.number;
+//				  
+//				tip.html(html);
+//				tip.style("visibility", "visible");
+//			  })
+//			  .on("mousemove.tooltip", function(d) {
+//				const coords = d3.mouse(g.basemap.node());
+//				tip.attr("x", coords[0] - 100);
+//				tip.attr("y", coords[1] - 65);
+//			  })
+//			  .on("mouseout.tooltip", function(d) {
+//				tip.style("visibility", "hidden");
+//			  });
+//			}
+//			
+//			// initialize a neighborhood list and store its case number
+//			function fillNeighborhood(json) {
+//				json.forEach(function(neighborhood) {
+//					let name = neighborhood.neighborhoods_sffind_boundaries;
+//					if (neighborhoods_set.has(name)) {
+//						neighborhoods_set.get(name).number += 1;
+//					} else {
+//						neighborhoods_set.set(name, {name: name, number: 1});
+//					}
+//				});
+//				
+//				neighborhoods_set.each(function(e) {
+//					neighborhoods.push([e.name, e.number]);
+//				});
+//				
+//				color_max = d3.max(neighborhoods.map(function(d) {
+//					return d[1];
+//				}));
+//				
+//				color_max = Math.ceil(color_max/100)*100;
+//				
+//				for (let i = 1; i < 6; i++) {
+//					color_range.push(i * color_max/5);
+//				}
+//				
+//				colorScale = d3.scaleThreshold()
+//				.domain(color_range)
+//		  		.range(["#fff1de", "#fdd5a4", "#f88457", "#e55037", "#8e0000"]);
+//			}
+//			
+//			function drawStreets(json) {
+//			  console.log("streets", json);
+//
+//			  // only show active streets
+//			  const streets = json.features.filter(function(d) {
+//				return d.properties.active;
+//			  });
+//
+//			  console.log("removed", json.features.length - streets.length, "inactive streets");
+//
+//			  g.streets.selectAll("path.street")
+//				.data(streets)
+//				.enter()
+//				.append("path")
+//				.attr("d", path)
+//    			.attr("transform", "translate(0," + 100 + ")")
+//				.attr("class", "street");
+//			}
+//						
+//			function drawCases(json) {
+//			  console.log("cases", json);
+//
+//			  // loop through and add projected (x, y) coordinates
+//			  // (just makes our d3 code a bit more simple later)
+//			  json.forEach(function(d) {
+//				const latitude = parseFloat(d.lat);
+//				const longitude = parseFloat(d.long);
+//				const pixels = projection([longitude, latitude]);
+//
+//				d.x = pixels[0];
+//				d.y = pixels[1];
+//			  });
+//
+//			  const symbols = g.cases.selectAll("circle")
+//				.data(json)
+//				.enter()
+//				.append("circle")
+//				.attr("cx", d => d.x)
+//				.attr("cy", d => d.y)
+//				.attr("r", 5)
+//			  	.style("stroke", 1)
+//				.attr("class", "symbol")
+//    			.attr("transform", "translate(0," + 100 + ")")
+//				.attr("fill", function(d) {
+//				  if (d.status_description != "Closed") {
+//					return "red";
+//				  }
+//				  return;
+//				});
+//				
+//			  symbols.on("mouseover", function(d) {
+//				d3.select(this).raise();
+//				d3.select(this).classed("active", true);
+//
+//				// use template literal for the detail table
+//				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+//			  	let formatDate = d3.timeFormat("%B %d, %Y");
+//				  
+//				const html = `
+//				  <table class="info-table" border="0" cellspacing="0" cellpadding="2">
+//				  <tbody>
+//					<tr>
+//					  <th>Service Name:</th>
+//					  <td>${d.service_name}</td>
+//					</tr>
+//					<tr>
+//					  <th>Date:</th>
+//					  <td>${formatDate(new Date(d.requested_datetime))}</td>
+//					</tr>
+//					<tr>
+//					  <th>Neighborhood:</th>
+//					  <td>${d.neighborhoods_sffind_boundaries}</td>
+//					</tr>
+//					<tr>
+//					  <th>Vehicle Details:</th>
+//					  <td>${d.service_details}</td>
+//					</tr>
+//					<tr>
+//					  <th>Status:</th>
+//					  <td>${d.status_description}</td>
+//					</tr>
+//					<tr>
+//					  <th>Description:</th>
+//					  <td>${d.status_notes}</td>
+//					</tr>
+//				  </tbody>
+//				  </table>
+//				`;
+//
+//				body.html(html);
+//				details.style("visibility", "visible");
+//			  });
+//
+//			  symbols.on("mouseout", function(d) {
+//				d3.select(this).classed("active", false);
+//				details.style("visibility", "hidden");
+//			  });
+//			}
+//
+//			function drawLegend() {
+//				let legend_height = 20;
+//				let legend_width = 40;
+//				
+//			  	const legend = g.legend
+//				    .attr("x", 0)
+//				    .attr("y", 0);
+//				
+//				let background = legend
+//					.append("rect")
+//					.attr("width", 300)
+//					.attr("height", 90)
+//					.attr("x", 645)
+//					.attr("y", 0)
+//					.style("fill", "#fff");
+//				
+//				// Add one dot in the legend for each name.
+//				let legend_title = legend
+//					.append("text")
+//				   	.attr("transform", "translate(100,0)")
+//				   	.text("Total Cases")
+//					.attr("x", 650)
+//					.attr("y", 30)
+//					.style("fill", "#000")
+//				   	.attr("class", "legend-title");
+//
+////				console.log(colorScale);
+//				let legend_rect = legend.selectAll("legend-rects")
+//					.data(colorScale.range())
+//					.enter()
+//					.append("rect")
+//					.attr("x", function(d,i){ return 690 + i * legend_width })
+//					.attr("y", 50)
+//					.attr("width", legend_width)
+//					.attr("height", legend_height)
+//					.attr("class", "legend-rect")
+//					.style("fill", function(d) {
+//						return d;
+//					});
+//
+//				// Legend labels
+//				legend
+//				.append("text")
+//				.attr("x", 675)
+//				.attr("y", 45)
+//				.text("0")
+//				.attr("text-anchor", "left")
+//				.style("alignment-baseline", "middle")
+//				.attr("class", "legend-label")
+//				.style("fill", "#000");
+//
+//				legend
+//				.append("text")
+//				.attr("x", 895)
+//				.attr("y", 45)
+//				.text("100")
+//				.attr("text-anchor", "left")
+//				.style("alignment-baseline", "middle")
+//				.attr("class", "legend-label")
+//				.style("fill", "#000");
+//			}
+//			
+//			// Zooming for the bars
+//			const extent = [0, [width, height]];
+//
+//			svg.call(d3.zoom()
+//			.scaleExtent([1, 4])
+//			.extent([[0, 0], [width, height]])
+//			.on("zoom", zoomed));
+//
+//			function zoomed() {
+//				g.basemap.selectAll("path.land").attr('transform', d3.event.transform);
+//				g.outline.selectAll("path.neighborhood").attr('transform', d3.event.transform);
+//			  	g.streets.selectAll("path.street").attr('transform', d3.event.transform);
+//				g.cases.selectAll("circle")
+//					.attr('transform', d3.event.transform)
+//					.attr("r", 5/d3.event.transform.k)
+//					.style("stroke-width", 1/d3.event.transform.k);
+//			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>
