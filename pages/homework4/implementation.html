@@ -390,7 +390,7 @@
 						</button>
 
 						<div class="navbar-text ml-3 d-none d-sm-block">
-							<h5 class="m-0 text-dark">Homework 3</h5>
+							<h5 class="m-0 text-dark">Homework 4</h5>
 						</div>
 
 						<div class="ml-auto d-sm-flex ml-3">
@@ -508,7 +508,7 @@
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
 									  		<div class="implementation-container">
-												<svg width="960" height="500" id="tree-1">
+												<svg id="tree1">
 													<g id="tree"></g>
 													<g id="tooltip" pointer-events="none"></g>
 													<g id="details" pointer-events="none"></g>
@@ -529,115 +529,190 @@
 		<script>
 			const url = "https://data.sfgov.org/resource/nuek-vuh3.json";
 			
-			const svg = d3
-				.select(".map-container")
-				.select("svg#tree-1")
-			  	.attr("x", 0);
-			
-			let width = 960;
-			
-			let height = 500;
-			
-			let root = {
+			// Data wrangling
+			let data = {
 				"name": "Fire Department",
 				"number": 0,
 				"children": []
 			};
 			
-			let color_range = [];
-			
-			var colorScale;
-			
-			const g = {
-			  tree1: svg.select("g#basemap"),
-			  tooltip: svg.select("g#tooltip"),
-			  details: svg.select("g#details"),
-			  legend: svg.select("g#legend")
-			};
-			
-			// setup tooltip (shows neighborhood name)
-			const tip = g
-			.tooltip
-			.append("foreignObject")
-			.attr("class", "neighborhood-tooltip");
-			
-			tip.attr("text-anchor", "end");
-			tip.attr("dx", -5);
-			tip.attr("dy", -5);
-			tip.attr("width", 200);
-			tip.attr("height", 60);
-			tip.style("visibility", "hidden");
-
-			// add details widget
-			// https://bl.ocks.org/mbostock/1424037
-			const details = g
-				.details
-				.append("foreignObject")
-				.attr("id", "details")
-			  	.attr("width", width)
-			  	.attr("height", height)
-			  	.attr("x", 0)
-			  	.attr("y", 0);
-
-			const body = details.append("xhtml:body")
-			  .style("text-align", "left")
-			  .style("background", "none")
-			  .html("<p>N/A</p>");
-
-			details.style("visibility", "hidden");
-
+			// Data loading and wrangling
 			d3.json(url).then(function(json) {
 				console.log(json);
-//			neighborhoods_analysis_boundaries
+//				neighborhoods_analysis_boundaries
 //				call_type
-				json.forEach(function(data) {
+				json.forEach(function(d) {
 					
-					root.number = root.number + 1;
+					data.number = data.number + 1;
 					
-					let neighborhoods = root.children.map(function(neighborhood) {
+					let neighborhoods = data.children.map(function(neighborhood) {
 						return neighborhood.name;
 					});
 					
-					let indexN = neighborhoods.indexOf(data.neighborhoods_analysis_boundaries);
+					let indexN = neighborhoods.indexOf(d.neighborhoods_analysis_boundaries);
 					
 					if (indexN > -1) {
 					
-						root.children[indexN].number = root.children[indexN].number + 1;
+						data.children[indexN].number = data.children[indexN].number + 1;
 						
-						let types = root.children[indexN].children.map(function(type) {
+						let types = data.children[indexN].children.map(function(type) {
 							return type.name;
 						});
 
-						let indexT = types.indexOf(data.call_type);
+						let indexT = types.indexOf(d.call_type);
 
 						if (indexT > -1) {
-							root.children[indexN].children[indexT].number = root.children[indexN].children[indexT].number + 1;
+							data.children[indexN].children[indexT].number = data.children[indexN].children[indexT].number + 1;
 						} else {
 							let newType = {
-								"name": data.call_type,
+								"name": d.call_type,
 								"number": 1
 							}
 
-							root.children[indexN].children.push(newType);
+							data.children[indexN].children.push(newType);
 						}
 					} else {
 						let newType = {
-							"name": data.call_type,
+							"name": d.call_type,
 							"number": 1
 						}
 
 						let newNeighborhood = {
-							"name": data.neighborhoods_analysis_boundaries,
+							"name": d.neighborhoods_analysis_boundaries,
 							"number": 1,
 							"children": [newType]
 						}
 
-						root.children.push(newNeighborhood);
+						data.children.push(newNeighborhood);
 					}
 				});
-				console.log(root);
+				console.log(data);
+				
+				// Draw tree
+				drawTree(data);
 
 			});
+			
+			function tree(data) {
+				// Draw svg
+				let width = 960;
+				let height = 1500;
+				const root = d3.hierarchy(data);
+				
+				root.dx = 10;
+				root.dy = width / (root.height + 1);
+				
+				return d3.tree().nodeSize([root.dx, root.dy])(root);
+			}
+			
+			function drawTree(data) {
+				// Draw svg
+				let width = 960;
+				let height = 1500;
+
+				const svg = d3
+					.select(".implementation-container")
+					.select("svg#tree1")
+					.attr("x", 0)
+					.attr("width", width)
+					.attr("height", height);
+
+				// Color range
+				let color_range = [];
+
+				var colorScale;
+
+				// Draw g
+				const g = {
+					tree: svg.select("g#tree"),
+					tooltip: svg.select("g#tooltip"),
+					details: svg.select("g#details"),
+					legend: svg.select("g#legend")
+				};
+
+				// setup tooltip (shows neighborhood name)
+				const tip = g
+					.tooltip
+					.append("foreignObject")
+					.attr("class", "neighborhood-tooltip");
+
+				tip.attr("text-anchor", "end");
+				tip.attr("dx", -5);
+				tip.attr("dy", -5);
+				tip.attr("width", 200);
+				tip.attr("height", 60);
+				tip.style("visibility", "hidden");
+
+				// add details widget
+				// https://bl.ocks.org/mbostock/1424037
+				const details = g
+					.details
+					.append("foreignObject")
+					.attr("id", "details")
+					.attr("width", width)
+					.attr("height", height)
+					.attr("x", 0)
+					.attr("y", 0);
+
+				const body = details.append("xhtml:body")
+					.style("text-align", "left")
+					.style("background", "none")
+					.html("<p>N/A</p>");
+
+				details.style("visibility", "hidden");
+				
+				// Draw tree
+				const root = tree(data);
+				
+				let x0 = Infinity;
+				let x1 = -x0;
+				
+				root.each(d => {
+					if (d.x > x1) x1 = d.x;
+					if (d.x < x0) x0 = d.x;
+				});
+
+				svg.attr("viewBox", [0, 0, width, x1 - x0 + root.dx * 2]);
+
+				g.tree
+					.attr("font-family", "sans-serif")
+					.attr("font-size", 10)
+					.attr("transform", `translate(${root.dy / 4},${root.dx - x0})`);
+
+				const link = g.tree.append("g")
+					.attr("fill", "none")
+					.attr("stroke", "#555")
+					.attr("stroke-opacity", 0.4)
+					.attr("stroke-width", 1.5)
+					.selectAll("path")
+					.data(root.links())
+					.join("path")
+					.attr("d", d3.linkHorizontal()
+						.x(d => d.y)
+						.y(d => d.x));
+
+				const node = g.tree.append("g")
+					.attr("stroke-linejoin", "round")
+					.attr("stroke-width", 3)
+					.selectAll("g")
+					.data(root.descendants())
+					.join("g")
+					.attr("transform", d => `translate(${d.y},${d.x})`);
+
+				node.append("circle")
+					.attr("fill", d => d.children ? "#555" : "#999")
+					.attr("r", 2.5);
+
+				node.append("text")
+					.attr("dy", "0.31em")
+					.attr("x", d => d.children ? -6 : 6)
+					.attr("text-anchor", d => d.children ? "end" : "start")
+					.text(d => d.data.name)
+					.clone(true).lower()
+					.attr("stroke", "white");
+				
+  				return g.tree.node();
+			}
 			
 //
 //			function drawBasemap(json) {
