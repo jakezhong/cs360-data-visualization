@@ -466,11 +466,17 @@
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
 									  		<div class="implementation-container">
-												<svg id="tree1">
+												<svg id="tree-container">
 													<g id="tree"></g>
 													<g id="tooltip" pointer-events="none"></g>
 													<g id="details" pointer-events="none"></g>
 													<g id="legend" pointer-events="none"></g>
+												</svg>
+												<svg id="pack-container">
+													<g id="pack"></g>
+													<g id="tooltip-pack" pointer-events="none"></g>
+													<g id="details-pack" pointer-events="none"></g>
+													<g id="legend-pack" pointer-events="none"></g>
 												</svg>
 									  		</div>
 									  	</div>
@@ -500,7 +506,7 @@
 			
 			// Data loading and wrangling
 			d3.json(url).then(function(json) {
-				console.log(json);
+//				console.log(json);
 //				neighborhoods_analysis_boundaries
 //				call_type
 				json.forEach(function(d) {
@@ -552,11 +558,13 @@
 						data.children.push(newNeighborhood);
 					}
 				});
-				console.log(data);
-				console.log(callTypes);
+//				console.log(data);
+//				console.log(callTypes);
 				
 				// Draw tree
-				drawTree(data);
+//				drawTree(data);
+				
+				drawPack(data);
 			});
 			
 			function tree(data) {
@@ -578,7 +586,7 @@
 				
 				const svg = d3
 					.select(".implementation-container")
-					.select("svg#tree1")
+					.select("svg#tree-container")
 					.attr("x", 0)
 					.attr("width", width)
 					.attr("height", height);
@@ -609,24 +617,6 @@
 				tip.attr("width", 250);
 				tip.attr("height", 60);
 				tip.style("visibility", "hidden");
-//
-//				// add details widget
-//				// https://bl.ocks.org/mbostock/1424037
-//				const details = g
-//					.details
-//					.append("foreignObject")
-//					.attr("id", "details")
-//					.attr("width", width)
-//					.attr("height", height)
-//					.attr("x", 0)
-//					.attr("y", 0);
-//
-//				const body = details.append("xhtml:body")
-//					.style("text-align", "left")
-//					.style("background", "none")
-//					.html("<p>N/A</p>");
-//
-//				details.style("visibility", "hidden");
 				
 				// Draw tree
 				const root = tree(data);
@@ -745,6 +735,148 @@
 
 			}
 			
+			function pack(data) {
+				// Draw svg
+				let width = 960;
+				let height = 960;
+				
+				let pack = d3
+					.pack()
+					.size([width, height])
+					.padding(3)
+					(d3.hierarchy(data)
+					.sum(d => d.number)
+					.sort((a, b) => b.number - a.number));
+				
+				return pack;
+				
+			}
+			
+			function drawPack(data) {
+				// Draw svg
+				let width = 960;
+				let height = 960;
+				
+				const svg = d3
+					.select(".implementation-container")
+					.select("svg#pack-container")
+					.attr("x", 0)
+					.attr("width", width)
+					.attr("height", height);
+				
+				let color = d3.scaleLinear()
+					.domain([0, 1, 2])
+//					.range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+					.range(["#002051", "#ff4040"])
+					.interpolate(d3.interpolateHcl)
+//				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
+//				["#ff4040","#40ff40","#4040ff","#ff4040"]
+//				["#23171b","#2ee5ae","#feb927","#900c00"]
+//				["#6e40aa","#2f96e0","#28ea8d","#aff05b"]
+//				["#440154","#31688e","#35b779","#fde725"]
+//				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
+//				["#eff3ff","#bdd7e7","#6baed6","#2171b5"]
+//				["#002051","#575c6e","#a49d78","#fdea45"]
+				
+				
+				// Draw g
+				const g = {
+					pack: svg.select("g#pack"),
+					tooltip: svg.select("g#tooltip-pack"),
+					details: svg.select("g#details-pack"),
+					legend: svg.select("g#legend-pack")
+				};
+
+//				 setup tooltip (shows neighborhood name)
+				const tip = g
+					.tooltip
+					.append("foreignObject")
+					.attr("class", "pack-tooltip");
+
+				tip.attr("text-anchor", "end");
+				tip.attr("dx", 0);
+				tip.attr("dy", 0);
+				tip.attr("width", 250);
+				tip.attr("height", 60);
+				tip.style("visibility", "hidden");
+				
+				const root = pack(data);
+				let focus = root;
+				let view;
+				
+				svg.attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
+					.style("display", "block")
+					.style("margin", "0 -14px")
+					.style("background", color(0))
+					.style("cursor", "pointer")
+					.on("click", () => zoom(root));
+
+				const node = g.pack.append("g")
+					.selectAll("circle")
+					.data(root.descendants().slice(1))
+					.join("circle")
+					.attr("fill", d => d.children ? color(d.depth) : "#ffffb2")
+					.attr("pointer-events", d => !d.children ? "none" : null)
+					.on("mouseover", function() { d3.select(this).attr("stroke", "#000"); })
+					.on("mouseout", function() { d3.select(this).attr("stroke", null); })
+					.on("click", d => focus !== d && (zoom(d), d3.event.stopPropagation()));
+
+				const label = g.pack.append("g")
+					.style("font", "10px sans-serif")
+					.attr("pointer-events", "none")
+					.attr("text-anchor", "middle")
+					.selectAll("text")
+					.data(root.descendants())
+					.join("text")
+					.style("fill-opacity", d => d.parent === root ? 1 : 0)
+					.style("display", d => d.parent === root ? "inline" : "none")
+					.text(d => d.data.name);
+
+				console.log(root);
+				
+				zoomTo([root.x, root.y, root.r * 2]);
+
+				function zoomTo(v) {
+					const k = width / v[2];
+
+					view = v;
+					
+					label.attr("transform", function(d) {
+						
+						return `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`
+					});
+					node.attr("transform", function(d) {
+						
+						return `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`;
+					});
+					node.attr("r", function(d) {
+						
+						return d.r * k;
+					});
+				}
+
+				function zoom(d) {
+					const focus0 = focus;
+
+					focus = d;
+
+					const transition = svg.transition()
+						.duration(d3.event.altKey ? 7500 : 750)
+						.tween("zoom", d => {
+							const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+							return t => zoomTo(i(t));
+						});
+
+					label
+						.filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+						.transition(transition)
+						.style("fill-opacity", d => d.parent === focus ? 1 : 0)
+						.on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+						.on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+				}
+
+				return svg.node();
+			}
 //
 //			function drawBasemap(json) {
 //			  console.log("basemap", json);
