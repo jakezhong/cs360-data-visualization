@@ -562,7 +562,7 @@
 //				console.log(callTypes);
 				
 				// Draw tree
-//				drawTree(data);
+				drawTree(data);
 				
 				drawPack(data);
 			});
@@ -767,13 +767,13 @@
 				let color = d3.scaleLinear()
 					.domain([0, 1, 2])
 //					.range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
-					.range(["#002051", "#ff4040"])
+					.range(["#142e57", "#ff4040"])
 					.interpolate(d3.interpolateHcl)
 //				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
 //				["#ff4040","#40ff40","#4040ff","#ff4040"]
 //				["#23171b","#2ee5ae","#feb927","#900c00"]
 //				["#6e40aa","#2f96e0","#28ea8d","#aff05b"]
-//				["#440154","#31688e","#35b779","#fde725"]
+//				["#440154","#31688e","#35b779","#fde7`25"]
 //				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
 //				["#eff3ff","#bdd7e7","#6baed6","#2171b5"]
 //				["#002051","#575c6e","#a49d78","#fdea45"]
@@ -817,7 +817,7 @@
 					.join("circle")
 					.attr("fill", d => d.children ? color(d.depth) : "#ffffb2")
 					.attr("pointer-events", d => !d.children ? "none" : null)
-					.on("mouseover", function() { d3.select(this).attr("stroke", "#000"); })
+					.on("mouseover", function() { d3.select(this).attr("stroke", "#fff"); })
 					.on("mouseout", function() { d3.select(this).attr("stroke", null); })
 					.on("click", d => focus !== d && (zoom(d), d3.event.stopPropagation()));
 
@@ -832,7 +832,7 @@
 					.style("display", d => d.parent === root ? "inline" : "none")
 					.text(d => d.data.name);
 
-				console.log(root);
+//				console.log(root);
 				
 				zoomTo([root.x, root.y, root.r * 2]);
 
