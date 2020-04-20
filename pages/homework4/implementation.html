@@ -12,64 +12,22 @@
 		<script src="../../ui/vendor/d3.v5.min.js"></script>
 		<title>CS360/560 Data Visualization</title>
 	<style>
-		.map-container {
+		.tree-container {
 			background-color: rgba(0,150,200,0.1);
 			font-size: 0;
 		}
-		#tooltip {
-		  font-weight: 600;
-		  text-shadow: 0px 0px 2px white;
-		  fill: black;
-		  stroke: none;
-		}
-		.neighborhood-tooltip {
+		.tree-tooltip {
 			min-width: 100px;
 			background-color: #fff;
 			border-radius: 3px;
-			box-shadow: rgba(0,0,0,0.2);
 			padding: 10px;
 			font-size: 13px;
+			font-weight: 400;
+			fill: black;
+			color: black;
+			stroke: none;
 			text-align: center;
-		}
-
-		#map path.land {
-		  stroke: none;
-		}
-
-		#map path.neighborhood {
-		  fill: none;
-		  stroke: white;
-		  stroke-width: 3.5px;
-		  pointer-events: none;
-		}
-
-		#map path.street {
-  		  fill: none;
-		  stroke: white;
-		  stroke-width: 1px;
-		  pointer-events: none;
-		}
-
-		#map .active {
-		  stroke: #0099ff !important;
-		}
-
-		#map circle.symbol {
-		  fill-opacity: 0.6;
-
-		  stroke: white;
-		}
-		#map circle.active {
-		  fill: #0099ff;
-		  fill-opacity: 0.8;
-		  stroke: #000 !important;
-		}
-		#map a:link, #map a:visited {
-		  color: #444444;
-		}
-
-		#map a:hover, #map a:active {
-		  color: red;
+			border: 1px solid black;
 		}
 		.info-table {
 			background-color: rgba(0, 255, 255, 0.5);
@@ -536,6 +494,10 @@
 				"children": []
 			};
 			
+			let callTypes = [];
+				
+			let colorScale;
+			
 			// Data loading and wrangling
 			d3.json(url).then(function(json) {
 				console.log(json);
@@ -544,7 +506,11 @@
 				json.forEach(function(d) {
 					
 					data.number = data.number + 1;
-					
+
+					if (callTypes.indexOf(d.call_type) < 0) {
+						callTypes.push(d.call_type);
+					}
+
 					let neighborhoods = data.children.map(function(neighborhood) {
 						return neighborhood.name;
 					});
@@ -568,7 +534,7 @@
 								"name": d.call_type,
 								"number": 1
 							}
-
+							
 							data.children[indexN].children.push(newType);
 						}
 					} else {
@@ -587,16 +553,16 @@
 					}
 				});
 				console.log(data);
+				console.log(callTypes);
 				
 				// Draw tree
 				drawTree(data);
-
 			});
 			
 			function tree(data) {
 				// Draw svg
 				let width = 960;
-				let height = 1500;
+				let height = 1600;
 				const root = d3.hierarchy(data);
 				
 				root.dx = 10;
@@ -608,20 +574,21 @@
 			function drawTree(data) {
 				// Draw svg
 				let width = 960;
-				let height = 1500;
-
+				let height = 1600;
+				
 				const svg = d3
 					.select(".implementation-container")
 					.select("svg#tree1")
 					.attr("x", 0)
 					.attr("width", width)
 					.attr("height", height);
-
-				// Color range
-				let color_range = [];
-
-				var colorScale;
-
+				
+				// Initialize color scale
+				colorScale = d3
+				.scaleOrdinal()
+				.domain(callTypes)
+				.range(["#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#a6cee3","#b15928"]);
+				
 				// Draw g
 				const g = {
 					tree: svg.select("g#tree"),
@@ -630,36 +597,36 @@
 					legend: svg.select("g#legend")
 				};
 
-				// setup tooltip (shows neighborhood name)
+//				 setup tooltip (shows neighborhood name)
 				const tip = g
 					.tooltip
 					.append("foreignObject")
-					.attr("class", "neighborhood-tooltip");
+					.attr("class", "tree-tooltip");
 
 				tip.attr("text-anchor", "end");
-				tip.attr("dx", -5);
-				tip.attr("dy", -5);
-				tip.attr("width", 200);
+				tip.attr("dx", 0);
+				tip.attr("dy", 0);
+				tip.attr("width", 250);
 				tip.attr("height", 60);
 				tip.style("visibility", "hidden");
-
-				// add details widget
-				// https://bl.ocks.org/mbostock/1424037
-				const details = g
-					.details
-					.append("foreignObject")
-					.attr("id", "details")
-					.attr("width", width)
-					.attr("height", height)
-					.attr("x", 0)
-					.attr("y", 0);
-
-				const body = details.append("xhtml:body")
-					.style("text-align", "left")
-					.style("background", "none")
-					.html("<p>N/A</p>");
-
-				details.style("visibility", "hidden");
+//
+//				// add details widget
+//				// https://bl.ocks.org/mbostock/1424037
+//				const details = g
+//					.details
+//					.append("foreignObject")
+//					.attr("id", "details")
+//					.attr("width", width)
+//					.attr("height", height)
+//					.attr("x", 0)
+//					.attr("y", 0);
+//
+//				const body = details.append("xhtml:body")
+//					.style("text-align", "left")
+//					.style("background", "none")
+//					.html("<p>N/A</p>");
+//
+//				details.style("visibility", "hidden");
 				
 				// Draw tree
 				const root = tree(data);
@@ -677,7 +644,7 @@
 				g.tree
 					.attr("font-family", "sans-serif")
 					.attr("font-size", 10)
-					.attr("transform", `translate(${root.dy / 4},${root.dx - x0})`);
+					.attr("transform", `translate(${root.dy / 3},${root.dx - x0})`);
 
 				const link = g.tree.append("g")
 					.attr("fill", "none")
@@ -700,18 +667,82 @@
 					.attr("transform", d => `translate(${d.y},${d.x})`);
 
 				node.append("circle")
-					.attr("fill", d => d.children ? "#555" : "#999")
-					.attr("r", 2.5);
+//					.attr("fill", d => d.children ? "#555" : "#999")
+					.attr("fill", function(d) {
+						if (callTypes.indexOf(d.data.name) > -1) {
+							return colorScale(d.data.name);
+						} else {
+							return d.children ? "#555" : "#999";
+						}
+					})
+					.attr("r", 3);
 
 				node.append("text")
 					.attr("dy", "0.31em")
-					.attr("x", d => d.children ? -6 : 6)
+					.attr("x", d => d.children ? -10 : 10)
 					.attr("text-anchor", d => d.children ? "end" : "start")
 					.text(d => d.data.name)
-					.clone(true).lower()
-					.attr("stroke", "white");
+//					.clone(true).lower()
+					.style("fill", function(d) {
+						if (callTypes.indexOf(d.data.name) > -1) {
+							return colorScale(d.data.name);
+						}
+					});
+
+//			  // add tooltip
+				node.on("mouseover", function(d) {
+					console.log(d);
+					let html = d.data.name;
+					html += "<br># of calls: " + d.data.number;
+
+					tip.html(html);
+					tip.style("visibility", "visible");
+					tip.attr("x", d.y);
+					tip.attr("y", d.x + 660);
+					tip.style("color", function() {
+						if (callTypes.indexOf(d.data.name) > -1) {
+							return colorScale(d.data.name);
+						}
+					});
+				})
+				.on("mouseout", function(d) {
+					tip.style("visibility", "hidden");
+				});
+				
+				drawTreeLegend(svg);
 				
   				return g.tree.node();
+			}
+			
+			function drawTreeLegend(svg) {
+				let legend_size = 12;
+
+				// Add one dot in the legend for each name.
+
+				svg.selectAll("legend-rects")
+					.data(callTypes)
+					.enter()
+					.append("rect")
+					.attr("x", 0)
+					.attr("y", function(d,i){ return i * (legend_size+5) - 60})
+					.attr("width", legend_size)
+					.attr("height", legend_size)
+					.attr("class", "legend-rect")
+					.style("fill", function(d) { return colorScale(d); });
+
+				// Add one dot in the legend for each name.
+				svg.selectAll("legend-labels")
+					.data(callTypes)
+					.enter()
+					.append("text")
+					.attr("x", legend_size * 1.5)
+					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 60})
+					.text(function(d){ return d; })
+					.attr("text-anchor", "left")
+					.style("alignment-baseline", "middle")
+					.attr("class", "legend-label")
+					.style("fill", function(d) { return colorScale(d); });
+
 			}
 			
 //
@@ -904,68 +935,7 @@
 //				details.style("visibility", "hidden");
 //			  });
 //			}
-//
-//			function drawLegend() {
-//				let legend_height = 20;
-//				let legend_width = 40;
-//				
-//			  	const legend = g.legend
-//				    .attr("x", 0)
-//				    .attr("y", 0);
-//				
-//				let background = legend
-//					.append("rect")
-//					.attr("width", 300)
-//					.attr("height", 90)
-//					.attr("x", 645)
-//					.attr("y", 0)
-//					.style("fill", "#fff");
-//				
-//				// Add one dot in the legend for each name.
-//				let legend_title = legend
-//					.append("text")
-//				   	.attr("transform", "translate(100,0)")
-//				   	.text("Total Cases")
-//					.attr("x", 650)
-//					.attr("y", 30)
-//					.style("fill", "#000")
-//				   	.attr("class", "legend-title");
-//
-////				console.log(colorScale);
-//				let legend_rect = legend.selectAll("legend-rects")
-//					.data(colorScale.range())
-//					.enter()
-//					.append("rect")
-//					.attr("x", function(d,i){ return 690 + i * legend_width })
-//					.attr("y", 50)
-//					.attr("width", legend_width)
-//					.attr("height", legend_height)
-//					.attr("class", "legend-rect")
-//					.style("fill", function(d) {
-//						return d;
-//					});
-//
-//				// Legend labels
-//				legend
-//				.append("text")
-//				.attr("x", 675)
-//				.attr("y", 45)
-//				.text("0")
-//				.attr("text-anchor", "left")
-//				.style("alignment-baseline", "middle")
-//				.attr("class", "legend-label")
-//				.style("fill", "#000");
-//
-//				legend
-//				.append("text")
-//				.attr("x", 895)
-//				.attr("y", 45)
-//				.text("100")
-//				.attr("text-anchor", "left")
-//				.style("alignment-baseline", "middle")
-//				.attr("class", "legend-label")
-//				.style("fill", "#000");
-//			}
+
 //			
 //			// Zooming for the bars
 //			const extent = [0, [width, height]];
