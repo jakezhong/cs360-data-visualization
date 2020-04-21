@@ -12,8 +12,8 @@
 		<script src="../../ui/vendor/d3.v5.min.js"></script>
 		<title>CS360/560 Data Visualization</title>
 	<style>
-		.tree-container {
-			background-color: rgba(0,150,200,0.1);
+		#tree-container {
+			background-color: #030619;
 			font-size: 0;
 		}
 		.tree-tooltip {
@@ -30,7 +30,7 @@
 			border: 1px solid black;
 		}
 		.pack-tooltip {
-			background-color: #fff;
+			background-color: rgba(255, 255, 255, 0.95);
 			border-radius: 3px;
 			padding: 10px;
 			font-size: 13px;
@@ -190,7 +190,7 @@
 									</a>
 									<ul class="list-nav-child">
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="overview.html" class="list-nav-link">
+										  <a href="../homework3/overview.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -198,7 +198,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="implementation.html" class="list-nav-link">
+										  <a href="../homework3/implementation.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -206,7 +206,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="requirements.html" class="list-nav-link">
+										  <a href="../homework3/requirements.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -656,7 +656,7 @@
 
 				const link = g.tree.append("g")
 					.attr("fill", "none")
-					.attr("stroke", "#555")
+					.attr("stroke", "#fff")
 					.attr("stroke-opacity", 0.4)
 					.attr("stroke-width", 1.5)
 					.selectAll("path")
@@ -680,7 +680,7 @@
 						if (callTypes.indexOf(d.data.name) > -1) {
 							return colorScale(d.data.name);
 						} else {
-							return d.children ? "#555" : "#999";
+							return d.children ? "#fff" : "#999";
 						}
 					})
 					.attr("r", 3);
@@ -695,6 +695,8 @@
 						if (callTypes.indexOf(d.data.name) > -1) {
 							return colorScale(d.data.name);
 						}
+						
+						return "#fff";
 					});
 
 //			  // add tooltip
@@ -731,7 +733,7 @@
 					.data(callTypes)
 					.enter()
 					.append("rect")
-					.attr("x", 0)
+					.attr("x", 20)
 					.attr("y", function(d,i){ return i * (legend_size+5) - 60})
 					.attr("width", legend_size)
 					.attr("height", legend_size)
@@ -743,7 +745,7 @@
 					.data(callTypes)
 					.enter()
 					.append("text")
-					.attr("x", legend_size * 1.5)
+					.attr("x", legend_size * 1.5 + 20)
 					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 60})
 					.text(function(d){ return d; })
 					.attr("text-anchor", "left")
@@ -782,20 +784,10 @@
 					.attr("width", width)
 					.attr("height", height);
 				
-				let color = d3.scaleLinear()
+				color = d3.scaleLinear()
 					.domain([0, 1, 2])
-//					.range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
 					.range(["#142e57", "#ff4040"])
 					.interpolate(d3.interpolateHcl)
-//				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
-//				["#ff4040","#40ff40","#4040ff","#ff4040"]
-//				["#23171b","#2ee5ae","#feb927","#900c00"]
-//				["#6e40aa","#2f96e0","#28ea8d","#aff05b"]
-//				["#440154","#31688e","#35b779","#fde7`25"]
-//				["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
-//				["#eff3ff","#bdd7e7","#6baed6","#2171b5"]
-//				["#002051","#575c6e","#a49d78","#fdea45"]
-				
 				
 				// Draw g
 				const g = {
@@ -815,7 +807,7 @@
 				tip.attr("dx", 0);
 				tip.attr("dy", 0);
 				tip.attr("width", 250);
-				tip.attr("height", 170);
+				tip.attr("height", 250);
 				tip.style("visibility", "hidden");
 				
 				const root = pack(data);
@@ -824,7 +816,6 @@
 				
 				svg.attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
 					.style("display", "block")
-					.style("margin", "0 -14px")
 					.style("background", color(0))
 					.style("cursor", "pointer")
 					.on("click", () => zoom(root));
@@ -850,8 +841,28 @@
 						html += "</table>";
 						tip.html(html);
 						tip.style("visibility", "visible");
-						tip.attr("x", d.x - 605);
-						tip.attr("y", d.y - 540);
+						tip.attr("x", function() {
+							let newX = d.x - 605;
+							
+							if (newX < -480) {
+								return -480;
+							} else if (newX > 230) {
+								return 230;
+							} else {
+								return newX;
+							}
+						});
+						tip.attr("y", function() {
+							let newY = d.y - 605;
+							
+							if (newY < -480) {
+								return -480;
+							} else if (newY > 230) {
+								return 230;
+							} else {
+								return newY;
+							}
+						});
 					})
 					.on("mouseout", function() {
 						d3.select(this).attr("stroke", null);
@@ -913,217 +924,49 @@
 						.on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
 				}
 
+				drawPackLegend(svg);
+				
 				return svg.node();
 			}
-//
-//			function drawBasemap(json) {
-//			  console.log("basemap", json);
-//			
-//			  const basemap = g.basemap.selectAll("path.land")
-//				.data(json.features)
-//				.enter()
-//				.append("path")
-//				.attr("d", path)
-//				.attr("class", "land")
-//    			.attr("transform", "translate(0," + 100 + ")")
-//			    .attr("fill", function(d) {
-//				  if (neighborhoods_set.get(d.properties.name)) {
-//					  d.number = neighborhoods_set.get(d.properties.name).number;
-//				  } else {
-//					  d.number = 0;
-//				  }
-//				  return colorScale(d.number);
-//			    });
-//
-////			  console.table(neighborhoods_set);
-//				
-//			  const outline = g.outline.selectAll("path.neighborhood")
-//				  .data(json.features)
-//				  .enter()
-//				  .append("path")
-//				  .attr("d", path)
-//				  .attr("class", "neighborhood")
-//    			  .attr("transform", "translate(0," + 100 + ")")
-//				  .each(function(d) {
-//					// save selection in data for interactivity
-//					// saves search time finding the right outline later
-//					d.properties.outline = this;
-//				  });
-//
-//			  // add highlight
-//			  basemap.on("mouseover.highlight", function(d) {
-//				d3.select(d.properties.outline).raise();
-//				d3.select(d.properties.outline).classed("active", true);
-//			  })
-//			  .on("mouseout.highlight", function(d) {
-//				d3.select(d.properties.outline).classed("active", false);
-//			  });
-//
-//			  // add tooltip
-//			  basemap.on("mouseover.tooltip", function(d) {
-//				let html = d.properties.name;
-//					html += "<br># of cases: " + d.number;
-//				  
-//				tip.html(html);
-//				tip.style("visibility", "visible");
-//			  })
-//			  .on("mousemove.tooltip", function(d) {
-//				const coords = d3.mouse(g.basemap.node());
-//				tip.attr("x", coords[0] - 100);
-//				tip.attr("y", coords[1] - 65);
-//			  })
-//			  .on("mouseout.tooltip", function(d) {
-//				tip.style("visibility", "hidden");
-//			  });
-//			}
-//			
-//			// initialize a neighborhood list and store its case number
-//			function fillNeighborhood(json) {
-//				json.forEach(function(neighborhood) {
-//					let name = neighborhood.neighborhoods_sffind_boundaries;
-//					if (neighborhoods_set.has(name)) {
-//						neighborhoods_set.get(name).number += 1;
-//					} else {
-//						neighborhoods_set.set(name, {name: name, number: 1});
-//					}
-//				});
-//				
-//				neighborhoods_set.each(function(e) {
-//					neighborhoods.push([e.name, e.number]);
-//				});
-//				
-//				color_max = d3.max(neighborhoods.map(function(d) {
-//					return d[1];
-//				}));
-//				
-//				color_max = Math.ceil(color_max/100)*100;
-//				
-//				for (let i = 1; i < 6; i++) {
-//					color_range.push(i * color_max/5);
-//				}
-//				
-//				colorScale = d3.scaleThreshold()
-//				.domain(color_range)
-//		  		.range(["#fff1de", "#fdd5a4", "#f88457", "#e55037", "#8e0000"]);
-//			}
-//			
-//			function drawStreets(json) {
-//			  console.log("streets", json);
-//
-//			  // only show active streets
-//			  const streets = json.features.filter(function(d) {
-//				return d.properties.active;
-//			  });
-//
-//			  console.log("removed", json.features.length - streets.length, "inactive streets");
-//
-//			  g.streets.selectAll("path.street")
-//				.data(streets)
-//				.enter()
-//				.append("path")
-//				.attr("d", path)
-//    			.attr("transform", "translate(0," + 100 + ")")
-//				.attr("class", "street");
-//			}
-//						
-//			function drawCases(json) {
-//			  console.log("cases", json);
-//
-//			  // loop through and add projected (x, y) coordinates
-//			  // (just makes our d3 code a bit more simple later)
-//			  json.forEach(function(d) {
-//				const latitude = parseFloat(d.lat);
-//				const longitude = parseFloat(d.long);
-//				const pixels = projection([longitude, latitude]);
-//
-//				d.x = pixels[0];
-//				d.y = pixels[1];
-//			  });
-//
-//			  const symbols = g.cases.selectAll("circle")
-//				.data(json)
-//				.enter()
-//				.append("circle")
-//				.attr("cx", d => d.x)
-//				.attr("cy", d => d.y)
-//				.attr("r", 5)
-//			  	.style("stroke", 1)
-//				.attr("class", "symbol")
-//    			.attr("transform", "translate(0," + 100 + ")")
-//				.attr("fill", function(d) {
-//				  if (d.status_description != "Closed") {
-//					return "red";
-//				  }
-//				  return;
-//				});
-//				
-//			  symbols.on("mouseover", function(d) {
-//				d3.select(this).raise();
-//				d3.select(this).classed("active", true);
-//
-//				// use template literal for the detail table
-//				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-//			  	let formatDate = d3.timeFormat("%B %d, %Y");
-//				  
-//				const html = `
-//				  <table class="info-table" border="0" cellspacing="0" cellpadding="2">
-//				  <tbody>
-//					<tr>
-//					  <th>Service Name:</th>
-//					  <td>${d.service_name}</td>
-//					</tr>
-//					<tr>
-//					  <th>Date:</th>
-//					  <td>${formatDate(new Date(d.requested_datetime))}</td>
-//					</tr>
-//					<tr>
-//					  <th>Neighborhood:</th>
-//					  <td>${d.neighborhoods_sffind_boundaries}</td>
-//					</tr>
-//					<tr>
-//					  <th>Vehicle Details:</th>
-//					  <td>${d.service_details}</td>
-//					</tr>
-//					<tr>
-//					  <th>Status:</th>
-//					  <td>${d.status_description}</td>
-//					</tr>
-//					<tr>
-//					  <th>Description:</th>
-//					  <td>${d.status_notes}</td>
-//					</tr>
-//				  </tbody>
-//				  </table>
-//				`;
-//
-//				body.html(html);
-//				details.style("visibility", "visible");
-//			  });
-//
-//			  symbols.on("mouseout", function(d) {
-//				d3.select(this).classed("active", false);
-//				details.style("visibility", "hidden");
-//			  });
-//			}
+			
+			function drawPackLegend(svg) {
+				let legend_size = 12;
+				// Initialize color scale
+				let titles = ["Neighborhood", "Call Type"];
+				let color = d3
+					.scaleOrdinal()
+					.domain(titles)
+					.range(["#ff4040", "#ffffb2"]);
 
-//			
-//			// Zooming for the bars
-//			const extent = [0, [width, height]];
-//
-//			svg.call(d3.zoom()
-//			.scaleExtent([1, 4])
-//			.extent([[0, 0], [width, height]])
-//			.on("zoom", zoomed));
-//
-//			function zoomed() {
-//				g.basemap.selectAll("path.land").attr('transform', d3.event.transform);
-//				g.outline.selectAll("path.neighborhood").attr('transform', d3.event.transform);
-//			  	g.streets.selectAll("path.street").attr('transform', d3.event.transform);
-//				g.cases.selectAll("circle")
-//					.attr('transform', d3.event.transform)
-//					.attr("r", 5/d3.event.transform.k)
-//					.style("stroke-width", 1/d3.event.transform.k);
-//			}
+				// Add one dot in the legend for each name.
+
+				svg.selectAll("legend-rects")
+					.data(titles)
+					.enter()
+					.append("rect")
+					.attr("x", -460)
+					.attr("y", function(d,i){ return i * (legend_size+5) - 460})
+					.attr("width", legend_size)
+					.attr("height", legend_size)
+					.attr("class", "legend-rect")
+					.style("fill", function(d) {
+						return color(d);
+					});
+
+				// Add one dot in the legend for each name.
+				svg.selectAll("legend-labels")
+					.data(titles)
+					.enter()
+					.append("text")
+					.attr("x", legend_size * 1.5 - 460)
+					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 460})
+					.text(function(d){ return d; })
+					.attr("text-anchor", "left")
+					.style("alignment-baseline", "middle")
+					.attr("class", "legend-label")
+					.style("fill", function(d) { return color(d); });
+
+			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>

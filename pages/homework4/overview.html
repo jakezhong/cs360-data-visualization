@@ -135,7 +135,7 @@
 									</a>
 									<ul class="list-nav-child">
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="#" class="list-nav-link">
+										  <a href="../homework3/overview.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -143,7 +143,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="implementation.html" class="list-nav-link">
+										  <a href="../homework3/implementation.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -151,7 +151,7 @@
 										  </a>
 										</li>
 										<li class="list-nav-item list-nav-child-item">
-										  <a href="requirements.html" class="list-nav-link">
+										  <a href="../homework3/requirements.html" class="list-nav-link">
 											<span class="list-nav-icon list-nav-icon-sm">
 											  <i class="material-icons">keyboard_arrow_right</i>
 											</span>
@@ -356,7 +356,7 @@
 								<p>Homework 4, by <a href="https://jakezhong.com" target="_blank">Jake Zhong</a></p>
 							</h1>
 							<p class="subtitle">
-								For this homework assignment, I have used a Non-Proportional Symbol Map in D3.js (version 5) to visualize data from the "<a href="https://data.sfgov.org/City-Infrastructure/311-Cases/vw6y-z8j6" target="_blank">SF 311 dataset</a>.
+								For this homework assignment, I've visualized the data from the <a href="https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3" target="_blank">Fire Department Calls for Service</a> dataset using hierarchical data visualization techniques in D3 version 5, including a tree and a pack.</a>.
 							</p>
 						</div>
 					</section>
@@ -364,23 +364,21 @@
 						<div class="container">
 							<hr class="space"/>
 							<h2 class="section-title">Dataset</h2>
-							<p>This dataset includes cases generally associated with a place or thing (for example parks, streets, or buildings) and created July 1, 2008 or later. Cases generally logged by a user regarding their own needs (for example, property or business tax questions, parking permit requests) are not included. See the Program Link and detailed attachment below for more information.</p>
+							<p>Fire Calls-For-Service includes all fire units responses to calls. Each record includes the call number, incident number, address, unit identifier, call type, and disposition. All relevant time intervals are also included. Because this dataset is based on responses, and since most calls involved multiple units, there are multiple records for each call number. Addresses are associated with a block number, intersection or call box, not a specific address.</p>
 							<h3 class="section-title top-space">Dataset Information</h3>
-							<p>I accessed this data on April 9, 2020 and by the date I fetched it, it had the following details.</p>
+							<p>I accessed this data on April 21, 2020 and by the date I fetched it, it had the following details.</p>
 							<ul>
-								<li><b>Data Last Updated: </b>April 9, 2020</li>
-								<li><b>Metadata Last Updated: </b>January 30, 2020</li>
-								<li><b>Date Created: </b>October 8, 2011</li>
-								<li><b>Data Provided by: </b>San Francisco 311</li>
-								<li><b>Dataset Owner: </b>AndyM</li>
-								<li><b>Publishing Department: </b>311</li>
-								<li><b>Geographic unit: </b>Latitude/longitude</li>
-								<li><b>Program link: </b><a href="https://support.datasf.org/help/311-case-data-faq" target="_blank">https://support.datasf.org/help/311-case-data-faq</a></li>
+								<li><b>Data Last Updated: </b>April 21, 2020</li>
+								<li><b>Metadata Last Updated: </b>April 21, 2020</li>
+								<li><b>Date Created: </b>December 17, 2015</li>
+								<li><b>Dataset Owner: </b>OpenData</li>
+								<li><b>Publishing Department: </b>Fire Department</li>
+								<li><b>Geographic unit: </b>Street address</li>
 								<li><b>Publishing frequency: </b>Daily</li>
-								<li><b>Data change frequency: </b>Multiple times per hour</li>
+								<li><b>Data change frequency: </b>Daily</li>
 							</ul>
 							<h3 class="section-title top-space">Dataset Analysis</h3>
-							<p>This dataset has 4.14M rows and 20 columns, while each row has 311 cases.</p>
+							<p>This dataset has 5.26M rows and 34 columns, while each row is a response.</p>
 							<h4 class="section-title top-space">Columns in this dataset</h4>
 							<table class="table table-middle table-material rt-md">
 								<tr>
@@ -389,104 +387,174 @@
 									<th>Type</th>
 								</tr>
 								<tr>
-									<td>CaseID</td>
-									<td>The unique ID of the service request created.</td>
-									<td>Number</td>
+									<td>Call Number</td>
+									<td>A unique 9-digit number assigned by the 911 Dispatch Center (DEM) to this call. These number are used for both Police and Fire calls.</td>
+									<td>Plain Text</td>
 								</tr>
 								<tr>
-									<td>Opened</td>
-									<td>The date and time when the service request was made.</td>
+									<td>Unit ID</td>
+									<td>Unit ID</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Incident Number</td>
+									<td>A unique 8-digit number assigned by DEM to this Fire incident.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Call Type</td>
+									<td>Call Type</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Call Date</td>
+									<td>Date the call is received at the 911 Dispatch Center. Used for reporting purposes.</td>
 									<td>Date & Time</td>
 								</tr>
 								<tr>
-									<td>Closed</td>
-									<td>The date and time when the service request was closed.</td>
+									<td>Watch Date</td>
+									<td>Watch date when the call is received. Watch date starts at 0800 each morning and ends at 0800 the next day.</td>
 									<td>Date & Time</td>
 								</tr>
 								<tr>
-									<td>Updated</td>
-									<td>The date and time when the service request was last modified. For requests with status=closed, this will be the date the request was closed.</td>
+									<td>Received DtTm</td>
+									<td>Date and time of call is received at the 911 Dispatch Center.</td>
 									<td>Date & Time</td>
 								</tr>
 								<tr>
-									<td>Status</td>
-									<td>A single-word indicator of the current state of the service request. (Note: GeoReport V2 only permits ‘open’ and ‘closed’).</td>
+									<td>Entry DtTm</td>
+									<td>Date and time the 911 operator submits the entry of the initical call information into the CAD system</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Dispatch DtTm</td>
+									<td>Date and time the 911 operator dispatches this unit to the call.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Response DtTm</td>
+									<td>Date and time this unit acknowledges the dispatch and records that the unit is en route to the location of the call.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>On Scene DtTm</td>
+									<td>Date and time the unit records arriving to the location of the incident</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Transport DtTm</td>
+									<td>If this unit is an ambulance, date and time the unit begins the transport unit arrives to hospital</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Hospital DtTm</td>
+									<td>If this unit is an ambulance, date and time the unit arrives to the hospital.</td>
+									<td>Date & Time</td>
+								</tr>
+								<tr>
+									<td>Call Final Disposition</td>
+									<td>Disposition of the call (Code). For example TH2: Transport to Hospital - Code 2, FIR: Resolved by Fire Department</td>
 									<td>Plain Text</td>
 								</tr>
 								<tr>
-									<td>Status Notes</td>
-									<td>Explanation of why status was changed to current state or more details on current status than conveyed with status alone.</td>
-									<td>Plain Text</td>
-								</tr>
-								<tr>
-									<td>Responsible Agency</td>
-									<td>The agency responsible for fulfilling or otherwise addressing the service request.</td>
-									<td>Plain Text</td>
-								</tr>
-								<tr>
-									<td>Category</td>
-									<td>The human readable name of the service request type.</td>
-									<td>Plain Text</td>
-								</tr>
-								<tr>
-									<td>Request Type</td>
-									<td>The human readable name of the service request subtype.</td>
-									<td>Plain Text</td>
-								</tr>
-								<tr>
-									<td>Request Details</td>
-									<td>The human readable name of the service request details.</td>
-									<td>Plain Text</td>
+									<td>Available DtTm</td>
+									<td>Date and time this unit is not longer assigned to this call and it is available for another dispatch.</td>
+									<td>Date & Time</td>
 								</tr>
 								<tr>
 									<td>Address</td>
-									<td>Human readable address or description of location.</td>
+									<td>Address of incident (note: address and location generalized to mid-block of street, intersection or nearest call box location, to protect caller privacy).</td>
 									<td>Plain Text</td>
 								</tr>
 								<tr>
-									<td>Street</td>
-									<td>Primary Street of the associated address. Parks may have a park name instead of a street name. Requests not associated with an address will be blank.</td>
+									<td>City</td>
+									<td>City of incident</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Zipcode of Incident</td>
+									<td>Zipcode of incident</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Battalion</td>
+									<td>Emergency Response District (There are 9 Fire Emergency Response Districts)</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Station Area</td>
+									<td>Fire Station First Response Area associated with the address of the incident</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Box</td>
+									<td>Fire box associated with the address of the incident. A box is the smallest area used to divide the City. Each box is associated with a unique unit dispatch order. The City is divided into more than 2,400 boxes.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Original Priority</td>
+									<td>Initial call priority (Code 2: Non-Emergency or Code 3:Emergency).</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Priority</td>
+									<td>Call priority (Code 2: Non-Emergency or Code 3:Emergency).</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Final Priority</td>
+									<td>Final call priority (Code 2: Non-Emergency or Code 3:Emergency).</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>ALS Unit</td>
+									<td>Does this unit includes ALS (Advance Life Support) resources? Is there a paramedic in this unit?</td>
+									<td>Checkbox</td>
+								</tr>
+								<tr>
+									<td>Call Type Group</td>
+									<td>Call types are divided into four main groups: Fire, Alarm, Potential Life Threatening and Non Life Threatening.</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Number of Alarms</td>
+									<td>Number of alarms associated with the incident. This is a number between 1 and 5.</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Unit Type</td>
+									<td>Unit type</td>
+									<td>Plain Text</td>
+								</tr>
+								<tr>
+									<td>Unit sequence in call dispatch</td>
+									<td>A number that indicates the order this unit was assigned to this call</td>
+									<td>Number</td>
+								</tr>
+								<tr>
+									<td>Fire Prevention District</td>
+									<td>Bureau of Fire Prevention District associated with this address</td>
 									<td>Plain Text</td>
 								</tr>
 								<tr>
 									<td>Supervisor District</td>
-									<td>San Francisco Supervisor District as defined in 'Supervisor Districts as of April 2012'.</td>
-									<td>Number</td>
-								</tr>
-								<tr>
-									<td>Neighborhood</td>
-									<td>San Francisco Neighborhood as defined in 'SF Find Neighborhoods'.</td>
+									<td>Supervisor District associated with this address (note: these are the districts created in 2012).</td>
 									<td>Plain Text</td>
 								</tr>
 								<tr>
-									<td>Police District</td>
-									<td>San Francisco Police District as defined in 'Current Police Districts'.</td>
+									<td>Neighborhooods - Analysis Boundaries</td>
+									<td>Neighborhood District associated with this address</td>
 									<td>Plain Text</td>
 								</tr>
 								<tr>
-									<td>Latitude</td>
-									<td>Latitude of the location, using the WGS84 projection.</td>
-									<td>Number</td>
-								</tr>
-								<tr>
-									<td>Longitude</td>
-									<td>Longitude of the location, using the WGS84 projection.</td>
-									<td>Number</td>
-								</tr>
-								<tr>
-									<td>Point</td>
-									<td>Combination of Latitude and Longitude for Socrata native maps.</td>
+									<td>Location</td>
+									<td>Location of incident (note: address and location generalized to mid-block of street, intersection or nearest call box location, to protect caller privacy).</td>
 									<td>Location</td>
 								</tr>
 								<tr>
-									<td>Source</td>
-									<td>Mechanism or path by which the service request was received; typically ‘Phone’, ‘Text/SMS’, ‘Website’, ‘Mobile App’, ‘Twitter’, etc but terms may vary by system.</td>
+									<td>RowID</td>
+									<td>Unique Call Number and Unit ID combination</td>
 									<td>Plain Text</td>
-								</tr>
-								<tr>
-									<td>Media URL</td>
-									<td>A URL to media associated with the request, e.g. an image.</td>
-									<td>Website URL</td>
 								</tr>
 							</table>
 							<h3 class="section-title top-space">Dataset License</h3>
@@ -496,14 +564,14 @@
 							
 							<h2 class="section-title top-space">Visualizations</h2>
 							
-							<p>For this project, I have created a Non-Proportional Symbol Map generated by D3 version 5.</p>
+							<p>For this project, I've created a hierarchical tree and pack in D3 Version 5.</p>
 							
 							<p class="buttons">
 								<a class="btn btn-lg btn-teal" href="implementation.html">
 									<span class="icon is-medium">
-									  <i class="fas fa-map-marked-alt"></i>
+									  <i class="fas fa-sitemap"></i>
 									</span>
-									<span>Non-Proportional Symbol Map</span>
+									<span>Hierarchical tree and pack</span>
 								</a>
 							</p>
 							<hr class="space"/>
@@ -522,7 +590,7 @@
 								<tbody>
 									<tr>
 										<td>D</td>
-							  			<td><i class="btn-flat-danger fas fa-times-circle"></i></td>
+							  			<td><i class="btn-flat-success fas fa-check-circle"></i></td>
 										<td>Wrangle data into a hierarchical JSON format.</td>
 									</tr>
 									<tr>
