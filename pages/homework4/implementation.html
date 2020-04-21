@@ -29,6 +29,24 @@
 			text-align: center;
 			border: 1px solid black;
 		}
+		.pack-tooltip {
+			background-color: #fff;
+			border-radius: 3px;
+			padding: 10px;
+			font-size: 13px;
+			font-weight: 400;
+			fill: black;
+			color: black;
+			stroke: none;
+			border: 1px solid black;
+		}
+		.pack-tooltip table {
+			width: 100%;
+			text-align: left;
+		}
+		.pack-tooltip table th {
+			font-size: 14px;
+		}
 		.info-table {
 			background-color: rgba(0, 255, 255, 0.5);
 			width: 400px;
@@ -797,7 +815,7 @@
 				tip.attr("dx", 0);
 				tip.attr("dy", 0);
 				tip.attr("width", 250);
-				tip.attr("height", 60);
+				tip.attr("height", 170);
 				tip.style("visibility", "hidden");
 				
 				const root = pack(data);
@@ -817,8 +835,28 @@
 					.join("circle")
 					.attr("fill", d => d.children ? color(d.depth) : "#ffffb2")
 					.attr("pointer-events", d => !d.children ? "none" : null)
-					.on("mouseover", function() { d3.select(this).attr("stroke", "#fff"); })
-					.on("mouseout", function() { d3.select(this).attr("stroke", null); })
+					.on("mouseover", function(d) {
+						d3.select(this).attr("stroke", "#fff");
+						
+						console.log(d);
+						let html = "<table>";
+						html += "<tr><th>" + d.data.name + "</th><th>" + d.data.number + "</th></tr>";
+						if (d.children.length > 0) {
+							d.children.forEach(function(el) {
+	//							console.log(el);
+								html += "<tr><td>" + el.data.name + "</td><td>" + el.data.number + "</td></tr>";
+							});
+						}
+						html += "</table>";
+						tip.html(html);
+						tip.style("visibility", "visible");
+						tip.attr("x", d.x - 605);
+						tip.attr("y", d.y - 540);
+					})
+					.on("mouseout", function() {
+						d3.select(this).attr("stroke", null);
+						tip.style("visibility", "hidden");
+					})
 					.on("click", d => focus !== d && (zoom(d), d3.event.stopPropagation()));
 
 				const label = g.pack.append("g")
@@ -831,7 +869,7 @@
 					.style("fill-opacity", d => d.parent === root ? 1 : 0)
 					.style("display", d => d.parent === root ? "inline" : "none")
 					.text(d => d.data.name);
-
+				
 //				console.log(root);
 				
 				zoomTo([root.x, root.y, root.r * 2]);
