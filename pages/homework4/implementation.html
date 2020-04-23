@@ -414,82 +414,109 @@
 						  	<div class="content">
 								<hr class="space"/>
 								<h3 class="section-title">Data Encoding</h3>
+								<h4>Tree</h4>
 								<ul>
 									<li>
-										<p><b>Basemap: </b>Neighborhoods of SF area</p>
+										Tree Levels
+										<ul>
+											<li><b>1st level: </b>fire department</li>
+											<li><b>2nd level: </b>neighborhoods</li>
+											<li><b>3td level: </b>call types</li>
+										</ul>
 									</li>
 									<li>
-										<p><b>Color/Legend: </b>Range of case numbers</p>
+										Colors
+										<ul>
+											<li><b>White: </b>the parent node - fire department and neighborhoods</li>
+											<li><b>Other colors: </b>the children node - call types</li>
+										</ul>
 									</li>
 									<li>
-										<p><b>Circle: </b>Individual case</p>
+										Links
+										<ul>
+											<li><b>Left side: parent node</b></li>
+											<li><b>Right side: child node</b></li>
+										</ul>
 									</li>
 									<li>
-										<p><b>Tooltip: </b>Neighborhood information</p>
+										Legends: different colors for call types
+									</li>
+								</ul>
+								<h4>Pack</h4>
+								<ul>
+									<li>
+										Sizes
+										<ul>
+											<li><b>Large circle(background): </b>fire department</li>
+											<li><b>Medium circle: </b>neighborhoods</li>
+											<li><b>Small circle: </b>call types</li>
+										</ul>
 									</li>
 									<li>
-										<p><b>Detail Panel: </b>Case information</p>
+										Colors
+										<ul>
+											<li><b><span style="color: #142e57">Blue: </b></span>Fire Department</li>
+											<li><b><span style="color: #ff4040">Red: </b></span>Neighborhoods</li>
+											<li><b><span style="color: #ffffb2">Light Yellow: </b></span>Call Types</li>
+										</ul>
 									</li>
 								</ul>
 								<hr class="space"/>
 								<h3 class="section-title top-space">Interactivity Guide</h3>
-								<h4 class="section-title top-space">Tooltip</h4>
+								<h4 class="section-title top-space">Tree</h4>
+								<h5 class="section-title top-space">Tooltip</h5>
 								<figure>
-									<p><img src="../../assets/img/homework3/interactivity1.gif" alt=""></p>
-									<figcaption>Hovering on a map's block will display a tooltip box and it will follow the user's mouse cursor.</figcaption>
+									<p><img src="../../assets/img/homework4/interactivity1.gif" alt=""></p>
+									<figcaption>Hovering on a node will wake the details-on-demand interactivity, which will display the name of the node and the number of records of the node.</figcaption>
 								</figure>
-								<h4 class="section-title top-space">Detail Panel</h4>
+								<h4 class="section-title top-space">Pack</h4>
+								<h5 class="section-title top-space"></h5>
 								<figure>
-									<p><img src="../../assets/img/homework3/interactivity2.gif" alt=""></p>
-									<figcaption>Hovering on a map's circle will display a detail panel on the top-left corner of the map.</figcaption>
+									<p><img src="../../assets/img/homework4/interactivity2.gif" alt=""></p>
+									<figcaption>Hovering on a circle will wake the details-on-demand interactivity, which will display the name and the numbers of recordsof of the neighborhood and the names and numbers of records of all call types in this neighborhood.</figcaption>
 								</figure>
-								<h4 class="section-title top-space">Zooming</h4>
+								<h5 class="section-title top-space">Zooming</h5>
 								<figure>
-									<p><img src="../../assets/img/homework3/interactivity3.gif" alt=""></p>
-									<figcaption>Zooming can be done by scrolling down or up on the map.</figcaption>
-								</figure>
-								<h4 class="section-title top-space">Dragging</h4>
-								<figure>
-									<p><img src="../../assets/img/homework3/interactivity4.gif" alt=""></p>
-									<figcaption>Pressing and moving the mouse on the map at the same time can drag the map around.</figcaption>
+									<p><img src="../../assets/img/homework4/interactivity3.gif" alt=""></p>
+									<figcaption>Clicking on any of the circle will zoom in the circle and display the specific name of the call types.</figcaption>
 								</figure>
 								<hr class="space"/>
 								<h3 class="section-title">Data Wrangling</h3>
-								<h4 class="section-title">API Request Filter</h4>
-								<p>I adjusted the SQL for the API request in order to only fetched the data of the category "Parking Enforcement" in February 2020.</p>
-								<script src="https://gist.github.com/jakezhong/085eeca6b8f4c24c4dd1629ec533d83d.js"></script>
-								<h4 class="section-title">Accumulation for neighborhood's case numbers</h4>
-								<p>In the original dataset, each neighborhood doesn’t have an accumulation of the case numbers, so I read all the cases and plus the number by the neighborhood in their properties. Here I use a set to avoid duplication and afterward, I convert the set to an array, which is more friendly for d3 implementation.</p>
-								<script src="https://gist.github.com/jakezhong/5d759d74f2ec9a6aee38b1b4373a04f2.js"></script>
+								<h4 class="section-title top-space">API Request Filter and Sorting</h4>
+								<p>In the website of the fire department, I did some data wrangling to narrow down my dataset, I used the filter to only select the data from the Feb 2020 and sorter them by the number of call types, so they will have the same order in each neighborhood.</p>
+								<h4 class="section-title top-space">Convert the fire depatment records to a hierarchical format (SF fire department records -> Neighborhoods -> Call Types)</h4>
+								<p>The original dataset doesn’t have a hierarchy based on the neighborhoods and call types. Although there are some ways to wrangle it in d3, I decided to wrangle it with vanilla JavaScript considering the hierarchy that I need only has three levels.</p>
+								<p>So, I fetched all the records of Feb 2020 with the API and sorted them by call types(making sure they follow the same order). I created a new object of the fire department, and store each neighborhood as its children, and each neighborhood also has a list of children, which is a list of different call types. While loading the records, each record will be saved to the list of neighborhoods and the list of call types in that neighborhood.</p>
+								<script src="https://gist.github.com/jakezhong/85e81d4786d37e18d20b72decceaf0a0.js"></script></script>
 								<hr class="space"/>
 								<h3 class="section-title">Conclusion</h3>
-								<ul>
-									<li>Among all neighborhoods, the largest case number is 82 and the smallest case number is 0 in February 2020.</li>
-									<li>Most of the neighborhoods in the SF area see a very small number of cases, from 0 - 10. While a few neighborhoods have many more case numbers, for example, Mission has 82 and Outer Richmond has 68 cases in February 2020.</li>
-									<li>Among all the cases, by the date I fetched, most of them are already closed, and there are only about 10 opened cases in total in the SF area in February 2020.</li>
-								</ul>
+								<p>In the month of February 2020, the fire department has 1,000 records. Based on the records, there 38 neighborhoods and 14 call types on the list. Most of the records are medical incidents and Tenderloin has the largest amount of records(163) among all the neighborhoods.</p>
 								<hr class="space"/>
 								<h3 class="section-title">Attribution</h3>
-									<p>For this project, I referred some D3 examples, such as non-proportional symbol map from our lab exercise, legend, color scale and zooming interactivity on the web.</p>
+									<p>For this project, I referred some D3 examples, such as tree and pack modeling, legend, color scale and zooming interactivity on the web.</p>
 									<h4 class="section-title top-space">References</h4>
 									<p>
+										<a href="https://github.com/d3/d3-hierarchy#tree" target="_blank">D3 Hierarchy Tree Example</a><br/>
+										<a href="https://github.com/d3/d3-hierarchy#pack" target="_blank">D3 Hierarchy Pack Example</a><br/>
 										<a href="https://www.d3-graph-gallery.com/graph/custom_legend.html" target="_blank">D3 Graph Gallery: D3 Legend Example</a><br/>
-										<a href="https://bl.ocks.org/mbostock/8fadc5ac9c2a9e7c5ba2" target="_blank">Map Pan & Zoom I</a><br/>
+										<a href="https://observablehq.com/@d3/zoomable-circle-packing" target="_blank">Zoomable Circle Packing</a><br/>
 										<a href="https://bl.ocks.org/hepplerj/f2f4e5f4a9321428b11614674c741177" target="_blank">Threshold scale</a><br/>
 										<a href="https://observablehq.com/@d3/color-schemes" target="_blank">Color Schemes</a>
 									</p>
 								<hr class="space"/>
-								<h3 class="section-title">D3 Implementation</h3>
+								<h3 class="section-title">D3 Implementations</h3>
 								<div class="card work-images">
 									<div class="card-body card-body-p">
 									  	<div class="chart-container">
 									  		<div class="implementation-container">
+												<h4 class="section-title">D3 Hierarchical Tree of Fire department Call Records in Feb 2020 by Neighborhoods and Call Types.</h4>
 												<svg id="tree-container">
 													<g id="tree"></g>
 													<g id="tooltip" pointer-events="none"></g>
 													<g id="details" pointer-events="none"></g>
 													<g id="legend" pointer-events="none"></g>
 												</svg>
+												<h4 class="section-title top-space">D3 Hierarchical Pack of Fire department Call Records in Feb 2020 by Neighborhoods and Call Types.</h4>
 												<svg id="pack-container">
 													<g id="pack"></g>
 													<g id="tooltip-pack" pointer-events="none"></g>
@@ -524,9 +551,6 @@
 			
 			// Data loading and wrangling
 			d3.json(url).then(function(json) {
-//				console.log(json);
-//				neighborhoods_analysis_boundaries
-//				call_type
 				json.forEach(function(d) {
 					
 					data.number = data.number + 1;
@@ -582,6 +606,7 @@
 				// Draw tree
 				drawTree(data);
 				
+				// Draw pack
 				drawPack(data);
 			});
 			
@@ -708,7 +733,7 @@
 					tip.html(html);
 					tip.style("visibility", "visible");
 					tip.attr("x", d.y);
-					tip.attr("y", d.x + 660);
+					tip.attr("y", d.x + 700);
 					tip.style("color", function() {
 						if (callTypes.indexOf(d.data.name) > -1) {
 							return colorScale(d.data.name);
@@ -734,7 +759,7 @@
 					.enter()
 					.append("rect")
 					.attr("x", 20)
-					.attr("y", function(d,i){ return i * (legend_size+5) - 60})
+					.attr("y", function(d,i){ return i * (legend_size+5) - 25})
 					.attr("width", legend_size)
 					.attr("height", legend_size)
 					.attr("class", "legend-rect")
@@ -746,7 +771,7 @@
 					.enter()
 					.append("text")
 					.attr("x", legend_size * 1.5 + 20)
-					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 60})
+					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 25})
 					.text(function(d){ return d; })
 					.attr("text-anchor", "left")
 					.style("alignment-baseline", "middle")
@@ -932,20 +957,28 @@
 			function drawPackLegend(svg) {
 				let legend_size = 12;
 				// Initialize color scale
-				let titles = ["Neighborhood", "Call Type"];
+				let titles = ["Fire Department", "Neighborhood", "Call Type"];
 				let color = d3
 					.scaleOrdinal()
 					.domain(titles)
-					.range(["#ff4040", "#ffffb2"]);
+					.range(["#142e57", "#ff4040", "#ffffb2"]);
 
 				// Add one dot in the legend for each name.
-
+				
+				svg
+					.append("rect")
+					.attr("x", -460)
+					.attr("y", -460)
+					.attr("width", 140)
+					.attr("height", 66)
+					.style("fill", "#999");
+				
 				svg.selectAll("legend-rects")
 					.data(titles)
 					.enter()
 					.append("rect")
-					.attr("x", -460)
-					.attr("y", function(d,i){ return i * (legend_size+5) - 460})
+					.attr("x", -450)
+					.attr("y", function(d,i){ return i * (legend_size+5) - 450})
 					.attr("width", legend_size)
 					.attr("height", legend_size)
 					.attr("class", "legend-rect")
@@ -958,8 +991,8 @@
 					.data(titles)
 					.enter()
 					.append("text")
-					.attr("x", legend_size * 1.5 - 460)
-					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 460})
+					.attr("x", legend_size * 1.5 - 450)
+					.attr("y", function(d,i){ return i * (legend_size+5) + (legend_size/2) - 450})
 					.text(function(d){ return d; })
 					.attr("text-anchor", "left")
 					.style("alignment-baseline", "middle")
