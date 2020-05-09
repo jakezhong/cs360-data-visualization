@@ -10,84 +10,30 @@
 		<link rel="stylesheet" href="../../ui/vendor/perfect-scrollbar.css">
 		<link rel="stylesheet" href="../../ui/css/style.css">
 		<script src="../../ui/vendor/d3.v5.min.js"></script>
+		<script type="text/javascript" src="https://d3js.org/topojson.v3.min.js"></script>
 		<title>CS360/560 Data Visualization</title>
 	<style>
-		.map-container {
-			background-color: rgba(0,150,200,0.1);
-			font-size: 0;
+		#svg-container {
+			position: relative;
+			overflow: hidden;
 		}
-		#tooltip {
-		  font-weight: 600;
-		  text-shadow: 0px 0px 2px white;
-		  fill: black;
-		  stroke: none;
+		
+		.counties {
+			fill: gray;
 		}
-		.neighborhood-tooltip {
-			min-width: 100px;
-			background-color: #fff;
-			border-radius: 3px;
-			box-shadow: rgba(0,0,0,0.2);
-			padding: 10px;
-			font-size: 13px;
-			text-align: center;
+		.counties :hover {
+			fill: red;
 		}
 
-		#map path.land {
-		  stroke: none;
+		.county-borders {
+			fill: none;
+			stroke: #fff;
+			stroke-width: 0.5px;
+			stroke-linejoin: round;
+			stroke-linecap: round;
+			pointer-events: none;
 		}
-
-		#map path.neighborhood {
-		  fill: none;
-		  stroke: white;
-		  stroke-width: 3.5px;
-		  pointer-events: none;
-		}
-
-		#map path.street {
-  		  fill: none;
-		  stroke: white;
-		  stroke-width: 1px;
-		  pointer-events: none;
-		}
-
-		#map .active {
-		  stroke: #0099ff !important;
-		}
-
-		#map circle.symbol {
-		  fill-opacity: 0.6;
-
-		  stroke: white;
-		}
-		#map circle.active {
-		  fill: #0099ff;
-		  fill-opacity: 0.8;
-		  stroke: #000 !important;
-		}
-		#map a:link, #map a:visited {
-		  color: #444444;
-		}
-
-		#map a:hover, #map a:active {
-		  color: red;
-		}
-		.info-table {
-			background-color: rgba(0, 255, 255, 0.5);
-			width: 400px;
-			color: #000;
-		}
-		.info-table th {
-			white-space: nowrap;
-		}
-		.info-table tr {
-			vertical-align: top;
-		}
-		.legend-title {
-			font-size: 16px;
-		}
-		.legend-label {
-			font-size: 12px;
-		}
+		
 	</style>
 	</head>
 	<body>
@@ -433,488 +379,337 @@
 				<div class="page-content">
 					<section class="section">
 						<div class="container">
-						  	<!-- Begin page content -->
-						  	<div class="content">
-								<h3 class="section-title">Data Encoding</h3>
-								<ul>
-									<li>
-										<p><b>Basemap: </b>Neighborhoods of SF area</p>
-									</li>
-									<li>
-										<p><b>Color/Legend: </b>Range of case numbers</p>
-									</li>
-									<li>
-										<p><b>Circle: </b>Individual case</p>
-									</li>
-									<li>
-										<p><b>Tooltip: </b>Neighborhood information</p>
-									</li>
-									<li>
-										<p><b>Detail Panel: </b>Case information</p>
-									</li>
-								</ul>
-								<hr class="space"/>
-								<h3 class="section-title top-space">Interactivity Guide</h3>
-								<h4 class="section-title top-space">Tooltip</h4>
-								<figure>
-									<p><img src="../../assets/img/homework3/interactivity1.gif" alt=""></p>
-									<figcaption>Hovering on a map's block will display a tooltip box and it will follow the user's mouse cursor.</figcaption>
-								</figure>
-								<h4 class="section-title top-space">Detail Panel</h4>
-								<figure>
-									<p><img src="../../assets/img/homework3/interactivity2.gif" alt=""></p>
-									<figcaption>Hovering on a map's circle will display a detail panel on the top-left corner of the map.</figcaption>
-								</figure>
-								<h4 class="section-title top-space">Zooming</h4>
-								<figure>
-									<p><img src="../../assets/img/homework3/interactivity3.gif" alt=""></p>
-									<figcaption>Zooming can be done by scrolling down or up on the map.</figcaption>
-								</figure>
-								<h4 class="section-title top-space">Dragging</h4>
-								<figure>
-									<p><img src="../../assets/img/homework3/interactivity4.gif" alt=""></p>
-									<figcaption>Pressing and moving the mouse on the map at the same time can drag the map around.</figcaption>
-								</figure>
-								<hr class="space"/>
-								<h3 class="section-title">Data Wrangling</h3>
-								<h4 class="section-title">API Request Filter</h4>
-								<p>I adjusted the SQL for the API request in order to only fetched the data of the category "Parking Enforcement" in February 2020.</p>
-								<script src="https://gist.github.com/jakezhong/085eeca6b8f4c24c4dd1629ec533d83d.js"></script>
-								<h4 class="section-title">Accumulation for neighborhood's case numbers</h4>
-								<p>In the original dataset, each neighborhood doesn’t have an accumulation of the case numbers, so I read all the cases and plus the number by the neighborhood in their properties. Here I use a set to avoid duplication and afterward, I convert the set to an array, which is more friendly for d3 implementation.</p>
-								<script src="https://gist.github.com/jakezhong/5d759d74f2ec9a6aee38b1b4373a04f2.js"></script>
-								<hr class="space"/>
-								<h3 class="section-title">Conclusion</h3>
-								<ul>
-									<li>Among all neighborhoods, the largest case number is 82 and the smallest case number is 0 in February 2020.</li>
-									<li>Most of the neighborhoods in the SF area see a very small number of cases, from 0 - 10. While a few neighborhoods have many more case numbers, for example, Mission has 82 and Outer Richmond has 68 cases in February 2020.</li>
-									<li>Among all the cases, by the date I fetched, most of them are already closed, and there are only about 10 opened cases in total in the SF area in February 2020.</li>
-								</ul>
-								<hr class="space"/>
-								<h3 class="section-title">Attribution</h3>
-									<p>For this project, I referred some D3 examples, such as non-proportional symbol map from our lab exercise, legend, color scale and zooming interactivity on the web.</p>
-									<h4 class="section-title top-space">References</h4>
-									<p>
-										<a href="https://www.d3-graph-gallery.com/graph/custom_legend.html" target="_blank">D3 Graph Gallery: D3 Legend Example</a><br/>
-										<a href="https://bl.ocks.org/mbostock/8fadc5ac9c2a9e7c5ba2" target="_blank">Map Pan & Zoom I</a><br/>
-										<a href="https://bl.ocks.org/hepplerj/f2f4e5f4a9321428b11614674c741177" target="_blank">Threshold scale</a><br/>
-										<a href="https://observablehq.com/@d3/color-schemes" target="_blank">Color Schemes</a>
-									</p>
-								<hr class="space"/>
-								<h3 class="section-title">D3 Implementation</h3>
-								<div class="card work-images">
-									<div class="card-body card-body-p">
-									  	<div class="chart-container">
-									  		<div class="map-container">
-												<svg width="960" height="600" id="map">
+							<!-- Begin page content -->
+							<hr class="space"/>
+							<h3 class="section-title">D3 Implementations</h3>
+							<div class="card work-images">
+								<div class="card-body card-body-p">
+									<div class="chart-container">
+										<div class="implementation-container">
+											<h4 class="section-title top-space">D3 Hierarchical Pack of Fire department Call Records in Feb 2020 by Neighborhoods and Call Types.</h4>
+											<div id="svg-container">
+												<svg id="map">
 													<g id="basemap"></g>
-
-													<!-- turn off pointer events for certain groups -->
-													<g id="streets" pointer-events="none"></g>
-													<g id="outline" pointer-events="none"></g>
-
-													<g id="cases"></g>
-													<g id="tooltip" pointer-events="none"></g>
-													<g id="details" pointer-events="none"></g>
+													<g id="cities"></g>
 													<g id="legend" pointer-events="none"></g>
-										  		</svg>
-									  		</div>
-									  	</div>
+<!--												<g id="tooltip-pack" pointer-events="none"></g>-->
+												</svg>
+												<svg id="panel">
+													<g id="bar-price"></g>
+													<g id="bar-count"></g>
+													<g id="line-price"></g>
+													<g id="line-count"></g>
+												</svg>
+												<svg id="details">
+													<g id="detail-1"></g>
+													<g id="detail-2"></g>
+												</svg>
+											</div>
+										</div>
 									</div>
 								</div>
-					  		</div>
-						  <!-- End page content -->
+							</div>
+					  		<!-- End page content -->
 						</div>
 					</section>
 				</div>
 			</div>
 		</div>
 		<script>
-			const urls = {
-				basemap: "https://data.sfgov.org/resource/6ia5-2f8k.geojson",
-				streets: "https://data.sfgov.org/resource/3psu-pn9h.geojson?$limit=2000",
-				cases: "https://data.sfgov.org/resource/vw6y-z8j6.json"
-//				cases: "https://data.sfgov.org/resource/nwbb-fxkq.json"
-//				arrests: "https://data.sfgov.org/resource/nwbb-fxkq.json"
-			};
+			let bayareaCitiesList = ["Albany", "American Canyon", "Antioch", "Atherton", "Belmont", "Belvedere", "Benicia", "Berkeley", "Brentwood", "Brisbane", "Burlingame", "Calistoga", "Campbell", "Clayton", "Cloverdale", "Colma", "Concord", "Corte Madera", "Cotati", "Cupertino", "Daly City", "Danville", "Dixon", "Dublin", "East Palo Alto", "El Cerrito", "Emeryville", "Fairfax", "Foster City", "Fremont", "Gilroy", "Half Moon Bay", "Hayward", "Healdsburg", "Hercules", "Hillsborough", "Lafayette", "Larkspur", "Livermore", "Los Altos", "Los Altos Hills", "Los Gatos", "Martinez", "Menlo Park", "Mill Valley", "Millbrae", "Milpitas", "Monte Sereno", "Moraga", "Morgan Hill", "Mountain View", "Napa", "Newark", "Novato", "Oakland", "Oakley", "Orinda", "Pacifica", "Palo Alto", "Petaluma", "Piedmont", "Pinole", "Pittsburg", "Pleasant Hill", "Pleasanton", "Portola Valley", "Redwood City", "Richmond", "Rio Vista", "Rohnert Park", "Ross", "St. Helena", "San Anselmo", "San Carlos", "San Francisco", "San Jose", "San Leandro", "San Mateo", "San Pablo", "San Rafael", "San Ramon", "Santa Clara", "Santa Rosa", "Saratoga", "Sausalito", "Sebastopol", "Sonoma", "Suisun City", "Sunnyvale", "Tiburon", "Union City", "Vacaville", "Vallejo", "Walnut Creek", "Windsor", "Woodside", "Yountville"];
 			
-			// calculate date range
-			const end = d3.timeDay.floor(d3.timeDay.offset(new Date(), -1));
-			const start = d3.timeDay.floor(d3.timeDay.offset(end, -7));
-			const format = d3.timeFormat("%Y-%m-%dT%H:%M:%S");
-			console.log(format(start), format(end));
-
-			// add parameters to arrests url
-//			urls.cases += "?$where=starts_with(resolution, 'Cite or Arrest')";
-//			urls.cases += " AND incident_date between '" + format(start) + "'";
-//			urls.cases += " and '" + format(end) + "'";
-//			urls.cases += " AND point IS NOT NULL";
-//			console.log(urls.cases);
-
-			urls.cases += "?$where=starts_with(service_name, 'Parking Enforcement')";
-			urls.cases += " AND requested_datetime between '2020-02-01T00:00:00'";
-			urls.cases += " and '2020-02-29T23:59:59'";
-			urls.cases += " AND point IS NOT NULL";
-			console.log(urls.cases);
-			// output url before encoding
+			let records = {};
+			let data = [];
 			
-			// encode special characters
-			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURI
-			urls.cases = encodeURI(urls.cases);
-			console.log(urls.cases);
-
-			const svg = d3
-				.select(".map-container")
-				.select("svg#map")
-			  	.attr("x", 0);
-			
-			let width = 960;
-			
-			let height = 500;
-			
-			let neighborhoods_set = d3.map();
-				
-			let neighborhoods = [];
-			
-			let color_range = [];
-			
-			var colorScale;
-			
-			const g = {
-			  basemap: svg.select("g#basemap"),
-			  streets: svg.select("g#streets"),
-			  outline: svg.select("g#outline"),
-			  cases: svg.select("g#cases"),
-			  tooltip: svg.select("g#tooltip"),
-			  details: svg.select("g#details"),
-			  legend: svg.select("g#legend")
-			};
-			
-			// setup tooltip (shows neighborhood name)
-			const tip = g
-			.tooltip
-			.append("foreignObject")
-			.attr("class", "neighborhood-tooltip");
-			
-			tip.attr("text-anchor", "end");
-			tip.attr("dx", -5);
-			tip.attr("dy", -5);
-			tip.attr("width", 200);
-			tip.attr("height", 60);
-			tip.style("visibility", "hidden");
-
-			// add details widget
-			// https://bl.ocks.org/mbostock/1424037
-			const details = g.details
-				.append("foreignObject")
-				.attr("id", "details")
-			  	.attr("width", width)
-			  	.attr("height", height)
-			  	.attr("x", 0)
-			  	.attr("y", 0);
-
-			const body = details.append("xhtml:body")
-			  .style("text-align", "left")
-			  .style("background", "none")
-			  .html("<p>N/A</p>");
-
-			details.style("visibility", "hidden");
-
-			// setup projection
-			// https://github.com/d3/d3-geo#geoConicEqualArea
-			const projection = d3.geoConicEqualArea();
-			projection.parallels([37.692514, 37.840699]);
-			projection.rotate([122, 0]);
-
-			// setup path generator (note it is a GEO path, not a normal path)
-			const path = d3.geoPath().projection(projection);
-
-			d3.json(urls.basemap).then(function(json) {
-				// makes sure to adjust projection to fit all of our regions
-				projection.fitSize([width, height], json);
-			
-				d3.json(urls.streets).then(drawStreets);
-				
-				d3.json(urls.cases).then(function(json) {
-					fillNeighborhood(json);
-					d3.json(urls.basemap).then(drawBasemap);
-					// draw the land and neighborhood outlines
-					drawCases(json);
-					drawLegend();
-				});
-
-				// now that projection has been set trigger loading the other files
-				// note that the actual order these files are loaded may differ
+			bayareaCitiesList.forEach(function(elem) {
+				let record = {
+					"name": "",
+					"latitude": "",
+					"longitude": "",
+					"2015-count": 0,
+					"2016-count": 0,
+					"2017-count": 0,
+					"2018-count": 0,
+					"2019-count": 0,
+					"2020-count": 0,
+					"2015-2020-count": 0,
+					"2015-price": 0,
+					"2016-price": 0,
+					"2017-price": 0,
+					"2018-price": 0,
+					"2019-price": 0,
+					"2020-price": 0,
+					"2015-2020-price": 0
+				};
+				record["name"] = elem;
+				records[elem] = record;
 			});
 
-			function drawBasemap(json) {
-			  console.log("basemap", json);
+//			Format Example: 
+//			
+//			records{"city": record, "city": record, "city": record, "city": record...];
+//			
+//			record = {
+//				"name": "Albany",
+//				"2015-price": 200000,
+//				"2016-price": 300000,
+//				"2017-price": 400000,
+//				"2018-price": 500000,
+//				"2019-price": 600000,
+//				"2020-price": 700000,
+//				"2015-2020-price": 2700000,
+//				"2015-count": 100,
+//				"2016-count": 200,
+//				"2017-count": 300,
+//				"2018-count": 400,
+//				"2019-count": 500,
+//				"2020-count": 600,
+//				"2015-2020-count": 2100,
+//			}
+//
+//			prices = {
+//				"2015": 1000000,
+//				"2016": 1500000,
+//				"2017": 2000000,
+//				"2018": 2500000,
+//				"2019": 3000000,
+//				"2020": 3200000
+//			}
+//			
+//			data = [record, record, record...];
 			
-			  const basemap = g.basemap.selectAll("path.land")
-				.data(json.features)
-				.enter()
-				.append("path")
-				.attr("d", path)
-				.attr("class", "land")
-    			.attr("transform", "translate(0," + 100 + ")")
-			    .attr("fill", function(d) {
-				  if (neighborhoods_set.get(d.properties.name)) {
-					  d.number = neighborhoods_set.get(d.properties.name).number;
-				  } else {
-					  d.number = 0;
-				  }
-				  return colorScale(d.number);
-			    });
-
-//			  console.table(neighborhoods_set);
-				
-			  const outline = g.outline.selectAll("path.neighborhood")
-				  .data(json.features)
-				  .enter()
-				  .append("path")
-				  .attr("d", path)
-				  .attr("class", "neighborhood")
-    			  .attr("transform", "translate(0," + 100 + ")")
-				  .each(function(d) {
-					// save selection in data for interactivity
-					// saves search time finding the right outline later
-					d.properties.outline = this;
-				  });
-
-			  // add highlight
-			  basemap.on("mouseover.highlight", function(d) {
-				d3.select(d.properties.outline).raise();
-				d3.select(d.properties.outline).classed("active", true);
-			  })
-			  .on("mouseout.highlight", function(d) {
-				d3.select(d.properties.outline).classed("active", false);
-			  });
-
-			  // add tooltip
-			  basemap.on("mouseover.tooltip", function(d) {
-				let html = d.properties.name;
-					html += "<br># of cases: " + d.number;
-				  
-				tip.html(html);
-				tip.style("visibility", "visible");
-			  })
-			  .on("mousemove.tooltip", function(d) {
-				const coords = d3.mouse(g.basemap.node());
-				tip.attr("x", coords[0] - 100);
-				tip.attr("y", coords[1] - 65);
-			  })
-			  .on("mouseout.tooltip", function(d) {
-				tip.style("visibility", "hidden");
-			  });
-			}
+			let mapWidth = 960;
+			let mapHeight = 600;
 			
-			// initialize a neighborhood list and store its case number
-			function fillNeighborhood(json) {
-				json.forEach(function(neighborhood) {
-					let name = neighborhood.neighborhoods_sffind_boundaries;
-					if (neighborhoods_set.has(name)) {
-						neighborhoods_set.get(name).number += 1;
-					} else {
-						neighborhoods_set.set(name, {name: name, number: 1});
-					}
-				});
-				
-				neighborhoods_set.each(function(e) {
-					neighborhoods.push([e.name, e.number]);
-				});
-				
-				color_max = d3.max(neighborhoods.map(function(d) {
-					return d[1];
-				}));
-				
-				color_max = Math.ceil(color_max/100)*100;
-				
-				for (let i = 1; i < 6; i++) {
-					color_range.push(i * color_max/5);
-				}
-				
-				colorScale = d3.scaleThreshold()
-				.domain(color_range)
-		  		.range(["#fff1de", "#fdd5a4", "#f88457", "#e55037", "#8e0000"]);
-			}
+			// Declare and initialize all graph elements
+			const map = d3
+				.select("svg#map")
+				.attr("x", 0)
+				.attr("width", mapWidth)
+				.attr("height", mapHeight);
+
+			const panel = d3
+				.select("svg#panel")
+			  	.attr("x", 0);
 			
-			function drawStreets(json) {
-			  console.log("streets", json);
-
-			  // only show active streets
-			  const streets = json.features.filter(function(d) {
-				return d.properties.active;
-			  });
-
-			  console.log("removed", json.features.length - streets.length, "inactive streets");
-
-			  g.streets.selectAll("path.street")
-				.data(streets)
-				.enter()
-				.append("path")
-				.attr("d", path)
-    			.attr("transform", "translate(0," + 100 + ")")
-				.attr("class", "street");
-			}
+			const details = d3
+				.select("svg#details")
+			  	.attr("x", 0);
+			
+			const g = {
+				basemap: map.select("g#basemap"),
+				cities: map.select("g#cities"),
+				tooltip: map.select("g#tooltip"),
+				legend: map.select("g#legend"),
+				barPrice: panel.select("g#bar-price"),
+				barCount: panel.select("g#bar-count"),
+				linePrice: panel.select("g#line-price"),
+				lineCount: panel.select("g#line-count"),
+				detail1: details.select("g#detail-1"),
+				details: details.select("g#detail-2")
+			};
+			
+			loadSaleCount();
+			
+			function loadSaleCount() {
+				d3.csv("data/Sale_Counts_Seas_Adj_City.csv").then(function(data) {
+					if (data == undefined) {
+						console.log("Failed to load file");
 						
-			function drawCases(json) {
-			  console.log("cases", json);
+						return;
+					}
+					
+					data.forEach(function(d) {
+						let sum = 0;
 
-			  // loop through and add projected (x, y) coordinates
-			  // (just makes our d3 code a bit more simple later)
-			  json.forEach(function(d) {
-				const latitude = parseFloat(d.lat);
-				const longitude = parseFloat(d.long);
-				const pixels = projection([longitude, latitude]);
+						if (records[d.RegionName] != undefined) {
+							for (let i = 2015; i < 2021; i++) {
+								if (i === 2020) {
+									records[d.RegionName][i+"-count"] = parseInt((~~parseInt(d[i+"-01"]) + ~~parseInt(d[i+"-02"]) + ~~parseInt(d[i+"-03"])) / 3);
 
-				d.x = pixels[0];
-				d.y = pixels[1];
-			  });
+									break;
+								}
+								records[d.RegionName][i+"-count"] = parseInt((~~parseInt(d[i+"-01"]) + ~~parseInt(d[i+"-02"]) + ~~parseInt(d[i+"-03"]) + ~~parseInt(d[i+"-04"]) + ~~parseInt(d[i+"-05"]) + ~~parseInt(d[i+"-06"]) + ~~parseInt(d[i+"-07"]) + ~~parseInt(d[i+"-08"]) + ~~parseInt(d[i+"-09"]) + ~~parseInt(d[i+"-10"]) + ~~parseInt(d[i+"-11"]) + ~~parseInt(d[i+"-12"])) / 12);
+							}
 
-			  const symbols = g.cases.selectAll("circle")
+
+							for (let i = 2015; i < 2021; i++) {
+								sum += records[d.RegionName][i+"-count"];
+							}
+
+							records[d.RegionName]["2015-2020-count"] = sum;
+						}
+					});
+				});
+				loadAllHomes();
+				loadCities();
+			};
+			
+			function loadAllHomes() {
+				d3.csv("data/City_Zhvi_AllHomes.csv").then(function(data) {
+					if (data == undefined) {
+						console.log("Failed to load file");
+
+						return;
+					}
+					data.forEach(function(d) {
+						if (records[d.RegionName] != undefined) {
+							let sum = 0, average;
+							if (records[d.RegionName]["2015-2020-count"] !== 0) {
+								for (let i = 2015; i < 2021; i++) {
+									if (i === 2020) {
+										records[d.RegionName][i+"-price"] = parseInt((~~parseInt(d[i+"-01"]) + ~~parseInt(d[i+"-02"]) + ~~parseInt(d[i+"-03"])) / 3);
+
+										break;
+									}
+									records[d.RegionName][i+"-price"] = parseInt((~~parseInt(d[i+"-01"]) + ~~parseInt(d[i+"-02"]) + ~~parseInt(d[i+"-03"]) + ~~parseInt(d[i+"-04"]) + ~~parseInt(d[i+"-05"]) + ~~parseInt(d[i+"-06"]) + ~~parseInt(d[i+"-07"]) + ~~parseInt(d[i+"-08"]) + ~~parseInt(d[i+"-09"]) + ~~parseInt(d[i+"-10"]) + ~~parseInt(d[i+"-11"]) + ~~parseInt(d[i+"-12"])) / 12);
+								}
+
+								for (let i = 2015; i < 2021; i++) {
+									sum += records[d.RegionName][i+"-price"];
+								}
+
+								average = parseInt(sum / 6);
+
+								records[d.RegionName]["2015-2020-price"] = average;
+							}
+						}
+					});
+				});
+			};
+			
+			function loadCities() {
+				d3.csv("data/City_Coordinates.csv").then(function(data) {
+					if (data == undefined) {
+						console.log("Failed to load file");
+
+						return;
+					}
+					data.forEach(function(d) {
+						if (records[d.RegionName] != undefined) {
+							records[d.RegionName]["latitude"] = d.Latitude;
+							records[d.RegionName]["longitude"] = d.Longitude;
+						}
+					});
+				});
+				
+				// Convert the records object to an array
+				data = Object.keys(records).map(function(key) { 
+					return records[key]; 
+				});
+				
+//				console.log(records);
+//				console.log(data);
+			}
+			
+			drawMap();
+			
+			function drawMap() {
+				d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json").then(drawBasemap);
+				
+				
+				drawCities(data);
+			}
+			
+			function drawBasemap(json) {
+
+				let projection = d3.geoAlbersUsa()
+					.translate([mapWidth /2 , mapHeight / 2])
+					.scale(mapWidth);
+
+				let path = d3.geoPath();
+//				let path = d3.geoPath().projection(projection);
+
+				console.log(d3.geoAlbersUsa());
+				
+				g.basemap
+					.attr("transform", "translate(350, -150), scale(1.5)");
+				
+				g.basemap.append("g")
+				.attr("class", "counties")
+				.selectAll("path")
+				.data(topojson.feature(json, json.objects.counties).features)
+				.enter().append("path")
+				.attr("d", path);
+
+				g.basemap.append("path")
+				.attr("class", "county-borders")
+				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
+				
+				// remove non-continental states
+				console.log(json);
+				
+//				g.basemap.append("g")
+//				.attr("class", "counties")
+//				.selectAll("path")
+//				.data(topojson.feature(json, json.objects.counties).features)
+//				.enter().append("path")
+//				.attr("d", path);
+//
+//				g.basemap.append("path")
+//				.attr("class", "county-borders")
+//				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
+				
+//				json.objects.states.geometries = json.objects.states.geometries.filter(isContinental);
+//
+//				// run topojson on remaining states and adjust projection
+//				let land = topojson.merge(json, json.objects.states.geometries);
+//
+//				// use null projection; data is already projected
+//				
+//				g.basemap
+////					.attr("transform", "translate(350, -150), scale(1.5)");
+//				
+//				// draw base map
+//				g.basemap.append("path")
+//				.datum(land)
+//				.attr("class", "land")
+//				.attr("d", path);
+//
+//				// draw interior borders
+//				g.basemap.append("path")
+//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a !== b))
+//				.attr("class", "border interior")
+//				.attr("d", path);
+//
+//				// draw exterior borders
+//				g.basemap.append("path")
+//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a === b))
+//				.attr("class", "border exterior")
+//				.attr("d", path);
+				
+				
+			}
+			function drawCities(json) {
+	
+				var projection = d3.geoAlbersUsa()
+					.translate([mapWidth /2 , mapHeight / 2])
+					.scale(mapWidth);
+				
+//				var path = d3.geoPath().projection(projection);
+				const symbols = g.cities.selectAll("circle")
 				.data(json)
 				.enter()
 				.append("circle")
-				.attr("cx", d => d.x)
-				.attr("cy", d => d.y)
-				.attr("r", 5)
-			  	.style("stroke", 1)
-				.attr("class", "symbol")
-    			.attr("transform", "translate(0," + 100 + ")")
-				.attr("fill", function(d) {
-				  if (d.status_description != "Closed") {
-					return "red";
-				  }
-				  return;
-				});
-				
-			  symbols.on("mouseover", function(d) {
-				d3.select(this).raise();
-				d3.select(this).classed("active", true);
-
-				// use template literal for the detail table
-				// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-			  	let formatDate = d3.timeFormat("%B %d, %Y");
-				  
-				const html = `
-				  <table class="info-table" border="0" cellspacing="0" cellpadding="2">
-				  <tbody>
-					<tr>
-					  <th>Service Name:</th>
-					  <td>${d.service_name}</td>
-					</tr>
-					<tr>
-					  <th>Date:</th>
-					  <td>${formatDate(new Date(d.requested_datetime))}</td>
-					</tr>
-					<tr>
-					  <th>Neighborhood:</th>
-					  <td>${d.neighborhoods_sffind_boundaries}</td>
-					</tr>
-					<tr>
-					  <th>Vehicle Details:</th>
-					  <td>${d.service_details}</td>
-					</tr>
-					<tr>
-					  <th>Status:</th>
-					  <td>${d.status_description}</td>
-					</tr>
-					<tr>
-					  <th>Description:</th>
-					  <td>${d.status_notes}</td>
-					</tr>
-				  </tbody>
-				  </table>
-				`;
-
-				body.html(html);
-				details.style("visibility", "visible");
-			  });
-
-			  symbols.on("mouseout", function(d) {
-				d3.select(this).classed("active", false);
-				details.style("visibility", "hidden");
-			  });
-			}
-
-			function drawLegend() {
-				let legend_height = 20;
-				let legend_width = 40;
-				
-			  	const legend = g.legend
-				    .attr("x", 0)
-				    .attr("y", 0);
-				
-				let background = legend
-					.append("rect")
-					.attr("width", 300)
-					.attr("height", 90)
-					.attr("x", 645)
-					.attr("y", 0)
-					.style("fill", "#fff");
-				
-				// Add one dot in the legend for each name.
-				let legend_title = legend
-					.append("text")
-				   	.attr("transform", "translate(100,0)")
-				   	.text("Total Cases")
-					.attr("x", 650)
-					.attr("y", 30)
-					.style("fill", "#000")
-				   	.attr("class", "legend-title");
-
-//				console.log(colorScale);
-				let legend_rect = legend.selectAll("legend-rects")
-					.data(colorScale.range())
-					.enter()
-					.append("rect")
-					.attr("x", function(d,i){ return 690 + i * legend_width })
-					.attr("y", 50)
-					.attr("width", legend_width)
-					.attr("height", legend_height)
-					.attr("class", "legend-rect")
-					.style("fill", function(d) {
-						return d;
-					});
-
-				// Legend labels
-				legend
-				.append("text")
-				.attr("x", 675)
-				.attr("y", 45)
-				.text("0")
-				.attr("text-anchor", "left")
-				.style("alignment-baseline", "middle")
-				.attr("class", "legend-label")
-				.style("fill", "#000");
-
-				legend
-				.append("text")
-				.attr("x", 895)
-				.attr("y", 45)
-				.text("100")
-				.attr("text-anchor", "left")
-				.style("alignment-baseline", "middle")
-				.attr("class", "legend-label")
-				.style("fill", "#000");
+				.attr("cx", function(d) {
+//					console.log(projection(isNaN(parseFloat(d.latitude)) ? -1000 : parseFloat(d.latitude)));
+					return isNaN(parseFloat(d.latitude)) ? -1000 : parseFloat(d.latitude);
+				})
+				.attr("cy", function(d) {
+//					console.log(projection(isNaN(parseFloat(d.longitude)) ? -1000 : parseFloat(d.longitude)));
+					return isNaN(parseFloat(d.longitude)) ? -1000 : parseFloat(d.longitude);
+				})
+				.attr("r", 10)
+				.style("stroke", 1)
+				.attr("class", "city")
+				.attr("fill", "black");
 			}
 			
-			// Zooming for the bars
-			const extent = [0, [width, height]];
-
-			svg.call(d3.zoom()
-			.scaleExtent([1, 4])
-			.extent([[0, 0], [width, height]])
-			.on("zoom", zoomed));
-
-			function zoomed() {
-				g.basemap.selectAll("path.land").attr('transform', d3.event.transform);
-				g.outline.selectAll("path.neighborhood").attr('transform', d3.event.transform);
-			  	g.streets.selectAll("path.street").attr('transform', d3.event.transform);
-				g.cases.selectAll("circle")
-					.attr('transform', d3.event.transform)
-					.attr("r", 5/d3.event.transform.k)
-					.style("stroke-width", 1/d3.event.transform.k);
+			// determines which states belong to the continental united states
+			// https://gist.github.com/mbostock/4090846#file-us-state-names-tsv
+			function isContinental(state) {
+				const id = parseInt(state.id);
+				return id < 60 && id !== 2 && id !== 15;
 			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
