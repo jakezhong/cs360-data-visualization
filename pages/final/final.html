@@ -394,6 +394,8 @@
 													<g id="legend" pointer-events="none"></g>
 <!--												<g id="tooltip-pack" pointer-events="none"></g>-->
 												</svg>
+												
+												<svg id="counties" width="960" height="600"></svg>
 												<svg id="panel">
 													<g id="bar-price"></g>
 													<g id="bar-count"></g>
@@ -613,26 +615,28 @@
 			
 			function drawBasemap(json) {
 
+				var counties = d3.select("svg");
+				
 				let projection = d3.geoAlbersUsa()
 					.translate([mapWidth /2 , mapHeight / 2])
 					.scale(mapWidth);
 
-				let path = d3.geoPath();
-//				let path = d3.geoPath().projection(projection);
+//				let path = d3.geoPath();
+				let path = d3.geoPath().projection(projection);
 
 				console.log(d3.geoAlbersUsa());
 				
-				g.basemap
+				counties
 					.attr("transform", "translate(350, -150), scale(1.5)");
 				
-				g.basemap.append("g")
+				counties.append("g")
 				.attr("class", "counties")
 				.selectAll("path")
 				.data(topojson.feature(json, json.objects.counties).features)
 				.enter().append("path")
 				.attr("d", path);
 
-				g.basemap.append("path")
+				counties.append("path")
 				.attr("class", "county-borders")
 				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
 				
@@ -680,6 +684,7 @@
 				
 				
 			}
+			
 			function drawCities(json) {
 	
 				var projection = d3.geoAlbersUsa()
