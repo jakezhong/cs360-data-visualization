@@ -480,15 +480,6 @@
 //			
 //			data = [record, record, record...];
 			
-			let mapWidth = 960;
-			let mapHeight = 600;
-			
-			// Declare and initialize all graph elements
-			const map = d3
-				.select("svg#map")
-				.attr("x", 0)
-				.attr("width", mapWidth)
-				.attr("height", mapHeight);
 
 			const panel = d3
 				.select("svg#panel")
@@ -499,10 +490,6 @@
 			  	.attr("x", 0);
 			
 			const g = {
-				basemap: map.select("g#basemap"),
-				cities: map.select("g#cities"),
-				tooltip: map.select("g#tooltip"),
-				legend: map.select("g#legend"),
 				barPrice: panel.select("g#bar-price"),
 				barCount: panel.select("g#bar-count"),
 				linePrice: panel.select("g#line-price"),
@@ -589,8 +576,8 @@
 					}
 					data.forEach(function(d) {
 						if (records[d.RegionName] != undefined) {
-							records[d.RegionName]["latitude"] = d.Latitude;
-							records[d.RegionName]["longitude"] = d.Longitude;
+							records[d.RegionName]["latitude"] = d.Latitude != "" ? d.Latitude : 0;
+							records[d.RegionName]["longitude"] = d.Longitude != "" ? d.Longitude : 0;
 						}
 					});
 				});
@@ -607,115 +594,130 @@
 			drawMap();
 			
 			function drawMap() {
-				d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json").then(drawBasemap);
+				d3.json("data/us-states.json").then(drawElements);
 				
 				
-				drawCities(data);
+				let mapWidth = 960;
+				let mapHeight = 600;
+
+				// Declare and initialize all graph elements
+				const map = d3
+					.select("svg#map")
+					.attr("x", 0)
+					.attr("width", mapWidth)
+					.attr("height", mapHeight);
+				
+				const g = {
+					basemap: map.select("g#basemap"),
+					cities: map.select("g#cities"),
+					tooltip: map.select("g#tooltip"),
+					legend: map.select("g#legend")
+				};
+				
+				function drawElements(json) {
+					// D3 Projection
+					let projection = d3.geoAlbersUsa()
+									   .translate([mapWidth*1.2, mapHeight/2])    // translate to center of screen
+									   .scale([mapWidth * 2.5]);          // scale things down so see entire US
+
+					// Define path generator
+					let path = d3.geoPath()               // path generator that will convert GeoJSON to SVG paths
+								 .projection(projection);  // tell path generator to use albersUsa projection
+
+					// Bind the data to the SVG and create one path per GeoJSON feature
+					g.basemap.selectAll("path")
+						.data(json.features)
+						.enter()
+						.append("path")
+						.attr("d", path)
+						.style("stroke", "#fff")
+						.style("stroke-width", "1")
+						.style("fill", function(d) {
+
+							// Get data value
+							var value = d.properties.visited;
+
+							if (value) {
+								//If value exists…
+								return color(value);
+							} else {
+								//If value is undefined…
+								return "rgb(213,222,217)";
+							}
+						});
+
+					// remove non-continental states
+
+	//				g.basemap.append("g")
+	//				.attr("class", "counties")
+	//				.selectAll("path")
+	//				.data(topojson.feature(json, json.objects.counties).features)
+	//				.enter().append("path")
+	//				.attr("d", path);
+	//
+	//				g.basemap.append("path")
+	//				.attr("class", "county-borders")
+	//				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
+
+	//				json.objects.states.geometries = json.objects.states.geometries.filter(isContinental);
+	//
+	//				// run topojson on remaining states and adjust projection
+	//				let land = topojson.merge(json, json.objects.states.geometries);
+	//
+	//				// use null projection; data is already projected
+	//				
+	//				g.basemap
+	////					.attr("transform", "translate(350, -150), scale(1.5)");
+	//				
+	//				// draw base map
+	//				g.basemap.append("path")
+	//				.datum(land)
+	//				.attr("class", "land")
+	//				.attr("d", path);
+	//
+	//				// draw interior borders
+	//				g.basemap.append("path")
+	//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a !== b))
+	//				.attr("class", "border interior")
+	//				.attr("d", path);
+	//
+	//				// draw exterior borders
+	//				g.basemap.append("path")
+	//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a === b))
+	//				.attr("class", "border exterior")
+	//				.attr("d", path);
+
+
+	//				var path = d3.geoPath().projection(projection);
+					g.cities.selectAll("circle")
+						.data(data)
+						.enter()
+						.append("circle")
+						.attr("cx", function(d) {
+							console.log(d);
+							if (projection([d.longitude, d.latitude]) == undefined) return;
+							console.log(projection([d.longitude, d.latitude])[0]);
+							return projection([d.longitude, d.latitude])[0];
+						})
+						.attr("cy", function(d) {
+							if (projection([d.longitude, d.latitude]) == undefined) return;
+							console.log(projection([d.longitude, d.latitude])[1]);
+							return projection([d.longitude, d.latitude])[1];
+						})
+						.attr("r", 10)
+							.style("fill", "rgb(217,91,67)")	
+							.style("opacity", 0.85)	
+
+					// determines which states belong to the continental united states
+					// https://gist.github.com/mbostock/4090846#file-us-state-names-tsv
+					function isContinental(state) {
+						const id = parseInt(state.id);
+						return id < 60 && id !== 2 && id !== 15;
+					}
+				}
+			
 			}
 			
-			function drawBasemap(json) {
-
-				var counties = d3.select("svg");
-				
-				let projection = d3.geoAlbersUsa()
-					.translate([mapWidth /2 , mapHeight / 2])
-					.scale(mapWidth);
-
-//				let path = d3.geoPath();
-				let path = d3.geoPath().projection(projection);
-
-				console.log(d3.geoAlbersUsa());
-				
-				counties
-					.attr("transform", "translate(350, -150), scale(1.5)");
-				
-				counties.append("g")
-				.attr("class", "counties")
-				.selectAll("path")
-				.data(topojson.feature(json, json.objects.counties).features)
-				.enter().append("path")
-				.attr("d", path);
-
-				counties.append("path")
-				.attr("class", "county-borders")
-				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
-				
-				// remove non-continental states
-				console.log(json);
-				
-//				g.basemap.append("g")
-//				.attr("class", "counties")
-//				.selectAll("path")
-//				.data(topojson.feature(json, json.objects.counties).features)
-//				.enter().append("path")
-//				.attr("d", path);
-//
-//				g.basemap.append("path")
-//				.attr("class", "county-borders")
-//				.attr("d", path(topojson.mesh(json, json.objects.counties, function(a, b) { return a !== b; })));
-				
-//				json.objects.states.geometries = json.objects.states.geometries.filter(isContinental);
-//
-//				// run topojson on remaining states and adjust projection
-//				let land = topojson.merge(json, json.objects.states.geometries);
-//
-//				// use null projection; data is already projected
-//				
-//				g.basemap
-////					.attr("transform", "translate(350, -150), scale(1.5)");
-//				
-//				// draw base map
-//				g.basemap.append("path")
-//				.datum(land)
-//				.attr("class", "land")
-//				.attr("d", path);
-//
-//				// draw interior borders
-//				g.basemap.append("path")
-//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a !== b))
-//				.attr("class", "border interior")
-//				.attr("d", path);
-//
-//				// draw exterior borders
-//				g.basemap.append("path")
-//				.datum(topojson.mesh(json, json.objects.states, (a, b) => a === b))
-//				.attr("class", "border exterior")
-//				.attr("d", path);
-				
-				
-			}
-			
-			function drawCities(json) {
-	
-				var projection = d3.geoAlbersUsa()
-					.translate([mapWidth /2 , mapHeight / 2])
-					.scale(mapWidth);
-				
-//				var path = d3.geoPath().projection(projection);
-				const symbols = g.cities.selectAll("circle")
-				.data(json)
-				.enter()
-				.append("circle")
-				.attr("cx", function(d) {
-//					console.log(projection(isNaN(parseFloat(d.latitude)) ? -1000 : parseFloat(d.latitude)));
-					return isNaN(parseFloat(d.latitude)) ? -1000 : parseFloat(d.latitude);
-				})
-				.attr("cy", function(d) {
-//					console.log(projection(isNaN(parseFloat(d.longitude)) ? -1000 : parseFloat(d.longitude)));
-					return isNaN(parseFloat(d.longitude)) ? -1000 : parseFloat(d.longitude);
-				})
-				.attr("r", 10)
-				.style("stroke", 1)
-				.attr("class", "city")
-				.attr("fill", "black");
-			}
-			
-			// determines which states belong to the continental united states
-			// https://gist.github.com/mbostock/4090846#file-us-state-names-tsv
-			function isContinental(state) {
-				const id = parseInt(state.id);
-				return id < 60 && id !== 2 && id !== 15;
-			}
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>
