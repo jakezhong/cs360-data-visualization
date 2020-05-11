@@ -32,6 +32,13 @@
 			display: block;
 			width: 100%;
 			font-size: 12px;
+			height: 30px;
+			line-height: 30px;
+		}
+		
+		#panel-close {
+			float: right;
+			margin-bottom: 20px;
 		}
 		
         .states {
@@ -87,6 +94,10 @@
 		
 		.info-table tr {
 			vertical-align: top;
+		}
+		
+		.details {
+			display: none;
 		}
 	</style>
 	</head>
@@ -458,27 +469,30 @@
 													</div>
 													<div class="svg-col">
 														<div id="panel">
-															<div id="panel-trigger">
-																<select>
-																	<option>Bar - Average Price of Houses (2015 - 2020)</option>
-																	<option>Bar - Count of House Sales (2015 - 2020)</option>
-																	<option>Line - Average Price Trend (2015 - 2020)</option>
-																	<option>Line - Count of House Sales Trend (2015 - 2020)</option>
-																</select>
-															</div>
-															<div class="bar-price">
-																<svg id="bar-price"></svg>
-															</div>
-															<div class="bar-count">
-																<svg id="bar-count"></svg>
-															</div>
-															<div class="line-price">
-																<svg id="line-price"></svg>
-															</div>
-															<div class="line-count">
-																<svg id="line-count"></svg>
+															<div class="general">
+																<div id="panel-trigger">
+																	<select>
+																		<option value=".bar-price">Bar - Average Price of Houses (2015 - 2020)</option>
+																		<option value=".bar-count">Bar - Count of House Sales (2015 - 2020)</option>
+																		<option value=".line-price">Line - Average Price Trend (2015 - 2020)</option>
+																		<option value=".line-count">Line - Count of House Sales Trend (2015 - 2020)</option>
+																	</select>
+																</div>
+																<div class="bar-price">
+																	<svg id="bar-price"></svg>
+																</div>
+																<div class="bar-count">
+																	<svg id="bar-count"></svg>
+																</div>
+																<div class="line-price">
+																	<svg id="line-price"></svg>
+																</div>
+																<div class="line-count">
+																	<svg id="line-count"></svg>
+																</div>
 															</div>
 															<div class="details">
+																<button id="panel-close" class="btn btn-danger">Close</button>
 																<div id="detail-1">
 																	<div class="detail-1-bar-1">
 																		<svg id="detail-1-bar-1"></svg>
@@ -493,18 +507,6 @@
 																	<div class="detail-1-bar-4 space">
 																		<svg id="detail-1-line-2"></svg>
 																	</div>
-																</div>
-																<div id="detail-2">
-																	<svg id="detail-2-bar-1"></svg>
-																	<svg id="detail-2-bar-2"></svg>
-																	<svg id="detail-2-line-1"></svg>
-																	<svg id="detail-2-line-2"></svg>
-																</div>
-																<div id="detail-3">
-																	<svg id="detail-3-bar-1"></svg>
-																	<svg id="detail-3-bar-2"></svg>
-																	<svg id="detail-3-line-1"></svg>
-																	<svg id="detail-3-line-2"></svg>
 																</div>
 															</div>
 														</div>
@@ -563,8 +565,6 @@
 				"totalMaximun": 0,
 				"totalMinimun": Number.MAX_VALUE
 			}
-			
-			let date = [2015, 2016, 2017, 2018, 2019, 2020];
 			
 			let data = [];
 			
@@ -632,9 +632,7 @@
 			let colorWhite = "rgb(255, 255, 255)";
 			let colorPrimary = "rgb(32, 206, 0)";
 			let colorSecondary = "rgb(255, 137, 0)";
-			let colorGray = "rgb(0, 137, 255)";
-			
-			loadSaleCount();
+			let colorGray = "rgb(147, 147, 147)";
 			
 			function loadSaleCount() {
 				d3.csv("data/Sale_Counts_Seas_Adj_City.csv").then(function(data) {
@@ -687,9 +685,10 @@
 					});
 					
 					count.average = ~~parseInt(count.total) / bayareaCitiesList.length;
+				
+					loadAllHomes();
+					loadCities();
 				});
-				loadAllHomes();
-				loadCities();
 			};
 			
 			function loadAllHomes() {
@@ -742,8 +741,9 @@
 							}
 						}
 					});
+					
 					price.average = ~~parseInt(price.total) / bayareaCitiesList.length;
-			
+
 					draw();
 				});
 			};
@@ -776,14 +776,54 @@
 				
 				const g = {
 					usMap: container.select("g#us-map"),
-					tooltip: container.select("g#tooltip"),
 					legend: container.select("g#legend"),
-					details: container.select("g#detail-panel"),
 					states: container.select("g#states"),
 					counties: container.select("g#counties"),
-					cities: container.select("g#cities")
+					cities: container.select("g#cities"),
+					details: container.select("g#detail-panel")
 				};
 
+				let colorDomain = [];
+
+				var colorScale;
+				
+				let color_max = d3.max(data.map(function(d) {
+					return d["2015-2020-count"];
+				}));
+				
+				let color_min = d3.min(data.map(function(d) {
+					return d["2015-2020-count"];
+				}));
+				
+				
+				color_max = Math.ceil((color_max - color_min)/100)*100;
+				
+				for (let i = 1; i < 5; i++) {
+					colorDomain.push(Math.ceil(color_min/100)*100 + i * Math.ceil(color_max/4));
+				}
+				
+				colorScale = d3.scaleThreshold()
+					.domain(colorDomain)
+					.range(["#fc7b48", "#e84a2f", "#aa230b", "#6d0707"]);
+				
+				let sizeDomain = [];
+
+				var sizeScale;
+				
+				let size_max = d3.max(data.map(function(d) {
+					return d["2015-2020-price"];
+				}));
+				
+				let size_min = d3.min(data.map(function(d) {
+					return d["2015-2020-price"] == 0 ? Number.MAX_VALUE : d["2015-2020-price"];
+				}));
+				
+				size_max = Math.ceil((size_max - size_min)/100)*100;
+				
+				for (let i = 0; i < 5; i++) {
+					sizeDomain.push(Math.ceil(size_min/100)*100 + i * Math.ceil(size_max/4));
+				}
+				
 				const details = g.details
 					.append("foreignObject")
 					.attr("id", "details")
@@ -798,13 +838,9 @@
 
 				details.style("visibility", "hidden");
 				
-				drawMap();
-				drawPanel();
-				
 				function drawMap() {
 					d3.json("data/counties-albers-10m.json").then(drawElements);
 
-					console.log(data);
 					let width = 680, height = 600;
 
 					// Declare and initialize all graph elements
@@ -830,7 +866,7 @@
 					function zoomed() {
 						basemap.attr('transform', d3.event.transform);
 					}
-
+					
 					function drawElements(json) {
 						// D3 Projection
 						let projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);     // scale things down so see entire US
@@ -887,80 +923,194 @@
 							.attr("r", function(d) {
 								return 0.2 + (d["2015-2020-price"] / price.totalMaximun) * 2;
 							})
-							.style("fill", colorMain)
+							.attr("fill", function(d) {
+								return colorScale(d["2015-2020-count"]);
+							})
 							.style("stroke", "#fff")
 							.style("stroke-width", 0.1)
+							.style("cursor", "pointer");
 
 						g.cities.selectAll("circle").on("mouseover", function(d) {
 							d3.select(this).raise();
 							d3.select(this).style("fill", colorSecondary);
-
-							const html = `
-								<table class="info-table" border="0" cellspacing="0" cellpadding="2">
-								<tbody>
-								<tr>
-								<th>City Name</th>
-								<td>${d.name}</td>
-								</tr>
-								<tr>
-								<th>2015 - 2020 Average Price</th>
-								<td>${d["2015-2020-price"]}</td>
-								</tr>
-								<tr>
-								<th>2015 - 2020 Count of House Sales</th>
-								<td>${d["2015-2020-count"]}</td>
-								</tr>
-								<tr>
-								</tr>
-								</tbody>
-								</table>
-							`;
-
-							body.html(html);
-							details.style("visibility", "visible");
-
+							
 							d3.select("#bar-price-" + d.id)
 								.style("fill", colorSecondary);
 							d3.select("#bar-count-" + d.id)
 								.style("fill", colorSecondary);
+							
+							showDetail(d);
 
 						});
 
 						g.cities.selectAll("circle").on("mouseout", function(d) {
-							d3.select(this).style("fill", colorMain);
-							details.style("visibility", "hidden");
+							d3.select(this)
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
 							d3.select("#bar-price-" + d.id)
-								.style("fill", colorMain);
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
 							d3.select("#bar-count-" + d.id)
-								.style("fill", colorMain);
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
+							
+							hideDetail();
+						});
+						
+						g.cities.selectAll("circle").on("click", function(d) {
+							openPanelDetail(d.name);
 						});
 					}
+					
+					function drawLegend() {
+						let legend_width = 200;
+						let legend_height = 300;
+						
+						let color_width = 40;
+						let color_height = 18;
+						
+						let size_radius = 3;
 
+						g.legend
+							.attr("width", legend_width)
+							.attr("height", legend_height)
+							.attr("transform", "translate(" + (width - legend_width) + ", 0)");
+						
+						let background = g.legend
+							.append("rect")
+							.attr("width", legend_width)
+							.attr("height", legend_height)
+							.style("fill", "#fff");
+
+						// Add one dot in the legend for each name.
+						let colorLegend = g.legend
+											.append("g")
+											.attr("width", legend_width);
+						
+						let colorLegendTitle = colorLegend
+							.append("text")
+							.attr("transform", "translate(0,0)")
+							.attr("x", 15)
+							.attr("y", 30)
+							.text("Count of House Sales")
+							.style("fill", "#000")
+							.attr("class", "legend-title")
+							.style("font-size", 12);
+						
+						let legendRect = colorLegend.selectAll("legend-rects")
+							.data(colorScale.range())
+							.enter()
+							.append("rect")
+							.attr("x", function(d,i){ return i * color_width + 20})
+							.attr("y", 70)
+							.attr("width", color_width)
+							.attr("height", color_height)
+							.attr("class", "legend-rect")
+							.style("fill", function(d) {
+								return d;
+							});
+
+						// Legend labels
+						let colorLegendStart = colorLegend
+							.append("text")
+							.attr("text-anchor", "left")
+							.attr("class", "color-legend-label")
+							.attr("x", 15)
+							.attr("y", 55)
+							.text("0")
+							.style("fill", "#000")
+							.style("font-size", 10)
+							.style("alignment-baseline", "middle");
+
+						let colorLegendEnd = colorLegend
+							.append("text")
+							.attr("x", legend_width - 32)
+							.attr("y", 55)
+							.attr("text-anchor", "left")
+							.attr("class", "color-legend-label")
+							.text(function() {
+								return colorDomain[colorDomain.length - 1];
+							})
+							.style("fill", "#000")
+							.style("font-size", 10)
+							.style("alignment-baseline", "middle");
+						
+						// Add one dot in the legend for each name.
+						let sizeLegend = g.legend
+											.append("g")
+											.attr("transform", "translate(0, 135)")
+											.attr("width", legend_width);
+						
+						let sizeLegendLabel = sizeLegend
+							.append("text")
+							.attr("class", "legend-title")
+							.attr("x", 15)
+							.text("Average Price")
+							.style("font-size", 12)
+							.style("fill", "#000");
+						
+						let topSpace = 0;
+						
+						let legendCircle = sizeLegend
+							.selectAll("legend-circles")
+							.data(sizeDomain)
+							.enter()
+							.append("circle")
+							.attr("width", legend_width)
+							.attr("height", legend_height)
+							.attr("cx", 30)
+							.attr("cy",function(d){
+								topSpace += 2 * (size_radius + 10 * d / sizeDomain[sizeDomain.length - 1]) + 5;
+								return topSpace + 15;
+							})
+							.attr("class", "legend-circle")
+							.attr("r", function(d) {
+								return size_radius + 10 * d / sizeDomain[sizeDomain.length - 1];
+							})
+							.style("fill", colorGray);
+
+						// Legend labels
+
+						topSpace = 0;
+						let legendCircleLabel = sizeLegend
+							.selectAll("size-legend-label")
+							.data(sizeDomain)
+							.enter()
+							.append("text")
+							.attr("x", 60)
+							.attr("y",function(d){
+								topSpace += 2 * (size_radius + 10 * d / sizeDomain[sizeDomain.length - 1]) + 5;
+								return topSpace + 15;
+							})
+							.attr("text-anchor", "left")
+							.style("alignment-baseline", "middle")
+							.attr("class", "size-legend-label")
+							.text(function(d) {
+								if (d >= 1000000) {
+									return (d / 1000000).toFixed(2) + "M";
+								} else if (d >= 1000) {
+									return (d / 1000).toFixed(2) + "K";
+								}
+								
+								return d.toFixed(2);
+							})
+							.style("fill", "#000")
+							.style("font-size", 10);
+					}
+
+					drawLegend();
 				}
-
+				
 				function drawPanel() {
 
 					let svgWidth = 320;
 
-					drawBarPrice();
-					drawBarCount();
-					drawLinePrice();
-					drawLineCount();
-					drawDetail1("Los Altos Hills");
-
 					let panel = d3.select("#panel");
-					let barPrice = d3.select("div.bar-price");
-					let barCount = d3.select("div.bar-count");
-					let linePrice = d3.select("div.line-price");
-					let lineCount = d3.select("div.line-count");
 					let detail = d3.select("div.details");
-
-					barPrice.style("display", "none");
-	//				barCount.style("display", "none");
-					linePrice.style("display", "none");
-					lineCount.style("display", "none");
-					detail.style("display", "none");
-
+					
 					function drawBarPrice() {
 						let svgHeight = 1000;
 
@@ -1050,45 +1200,35 @@
 								return xScale(d["2015-2020-price"]);
 							})
 							.attr("height", yScale.bandwidth())
-							.style("fill", colorMain);
+							.attr("fill", function(d) {
+								return colorScale(d["2015-2020-count"]);
+							})
+							.style("cursor", "pointer");
 
 						bars.selectAll(".bar-price").on("mouseover", function(d) {
 							d3.select(this).style("fill", colorSecondary);
 
-							const html = `
-								<table class="info-table" border="0" cellspacing="0" cellpadding="2">
-								<tbody>
-								<tr>
-								<th>City Name</th>
-								<td>${d.name}</td>
-								</tr>
-								<tr>
-								<th>2015 - 2020 Average Price</th>
-								<td>${d["2015-2020-price"]}</td>
-								</tr>
-								<tr>
-								<th>2015 - 2020 Count of House Sales</th>
-								<td>${d["2015-2020-count"]}</td>
-								</tr>
-								<tr>
-								</tr>
-								</tbody>
-								</table>
-							`;
-
-							body.html(html);
-							details.style("visibility", "visible");
-
-							d3.select("#city-" + d.id)
-								.style("fill", colorSecondary);
-
+							d3.select("#city-" + d.id).style("fill", colorSecondary);
+							
+							showDetail(d);
 						});
 
 						bars.selectAll(".bar-price").on("mouseout", function(d) {
-							d3.select(this).style("fill", colorMain);
-							details.style("visibility", "hidden");
+							d3.select(this)
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
+							
 							d3.select("#city-" + d.id)
-								.style("fill", colorMain);
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
+							
+							hideDetail();
+						});
+						
+						bars.selectAll(".bar-price").on("click", function(d) {
+							openPanelDetail(d.name);
 						});
 					}
 
@@ -1174,7 +1314,10 @@
 								return xScale(d["2015-2020-count"]);
 							})
 							.attr("height", yScale.bandwidth())
-							.style("fill", colorMain);
+							.style("fill", function(d) {
+								return colorScale(d["2015-2020-count"]);
+							})
+							.style("cursor", "pointer");
 						
 						bars.selectAll(".bar-count").on("mouseover", function(d) {
 							d3.select(this).style("fill", colorSecondary);
@@ -1203,17 +1346,30 @@
 							body.html(html);
 							details.style("visibility", "visible");
 
-							d3.select("#city-" + d.id)
-								.style("fill", colorSecondary);
+							d3.select("#city-" + d.id).style("fill", colorSecondary);
+						
+							bars.selectAll(".bar-price").on("click", function(d) {
+								drawDetail(d.name);
+							});
 
 						});
 
 						bars.selectAll(".bar-count").on("mouseout", function(d) {
-							d3.select(this).style("fill", colorMain);
+							d3.select(this).style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
 							details.style("visibility", "hidden");
 							d3.select("#city-" + d.id)
-								.style("fill", colorMain);
+								.style("fill", function(d) {
+									return colorScale(d["2015-2020-count"]);
+								});
 						});
+						
+						bars.selectAll(".bar-count").on("click", function(d) {
+							openPanelDetail(d.name);
+						});
+						
+						d3.select("div.bar-count").style("display", "none");
 					}
 
 					function drawLinePrice() {
@@ -1292,6 +1448,8 @@
 							.attr('stroke', colorMain)
 							.attr('stroke-width', 1.5)
 							.attr('d', line);
+						
+						d3.select("div.line-price").style("display", "none");
 					}
 
 					function drawLineCount() {
@@ -1369,287 +1527,8 @@
 							.attr('stroke', colorMain)
 							.attr('stroke-width', 1.5)
 							.attr('d', line);
-					}
-
-					function drawDetail1(city) {
-						detailBar1();
-						detailBar2();
-						detailLine1();
-						detailLine2();
-
-						function detailBar1() {
-							let svgHeight = 70;
-
-							var margin = {top: 5, right: 20, bottom: 0, left: 20}
-							  , width = svgWidth - margin.left - margin.right // Use the window's width 
-							  , height = svgHeight - margin.top - margin.bottom;
-
-							let xScale = d3.scaleBand().range([0, width]).padding(0.4);
-							let yScale = d3.scaleLinear().range([height, 0]);
-
-							let svg = d3.select("svg#detail-1-bar-1")
-											.attr("width", svgWidth)
-											.attr("height", svgHeight)
-											.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
-
-							var g = svg.append("g")
-									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-							let priceData = [records[city]["2015-2020-price"]];
-
-							xScale = d3.scaleLinear()
-									.domain([0, price.totalMaximun])
-									.range([0, width]);
-
-							yScale = d3.scaleBand()
-									.domain(city)
-									.range([0, height])
-									.padding(0.2);
-
-							let xAxis = g.append("g")
-								.attr("transform", "translate(0," + 45 + ")")
-								.call(d3.axisBottom(xScale).tickFormat(function(d){
-									if (d >= 1000000) {
-										return d / 1000000 + "M";
-									} else if (d >= 1000) {
-										return d / 1000 + "K";
-									} else if (d < 1000) {
-										return d;
-									}
-								})
-								.ticks(10))
-								.attr("class", "x-axis")
-								.append("text")
-								.attr("class", "label")
-								.attr("x", 150)
-								.attr("y", -40)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.text("Average House Price (2015-2020)");
-
-							// Create the bars' container
-							let bar = g.selectAll(".bar-price")
-								.data(priceData)
-								.enter()
-								.append("rect")
-								.attr("class", "bar-price")
-								.attr("x", 0)
-								.attr("y", 20)
-								.attr("width", function(d) {
-									return xScale(d);
-								})
-								.attr("height", 25)
-								.style("fill", colorMain);
-						}
-
-						function detailBar2() {
-							let svgHeight = 70;
-
-							var margin = {top: 5, right: 20, bottom: 0, left: 20}
-							  , width = svgWidth - margin.left - margin.right // Use the window's width 
-							  , height = svgHeight - margin.top - margin.bottom;
-
-							let xScale = d3.scaleBand().range([0, width]).padding(0.4);
-							let yScale = d3.scaleLinear().range([height, 0]);
-
-							let svg = d3.select("svg#detail-1-bar-2")
-											.attr("width", svgWidth)
-											.attr("height", svgHeight)
-											.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
-
-							var g = svg.append("g")
-									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-							let countData = [records[city]["2015-2020-count"]];
-
-							xScale = d3.scaleLinear()
-									.domain([0, count.totalMaximun])
-									.range([0, width]);
-
-							yScale = d3.scaleBand()
-									.domain(city)
-									.range([0, height])
-									.padding(0.2);
-
-							let xAxis = g.append("g")
-								.attr("transform", "translate(0," + 45 + ")")
-								.call(d3.axisBottom(xScale))
-								.attr("class", "x-axis")
-								.append("text")
-								.attr("class", "label")
-								.attr("x", 152)
-								.attr("y", -40)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.text("Count of House Sales (2015-2020)");
-
-							// Create the bars' container
-							let bar = g.selectAll(".bar-count")
-								.data(countData)
-								.enter()
-								.append("rect")
-								.attr("class", "bar-count")
-								.attr("x", 0)
-								.attr("y", 20)
-								.attr("width", function(d) {
-									return xScale(d);
-								})
-								.attr("height", 25)
-								.style("fill", colorMain);
-						}
-
-						function detailLine1() {
-							let svgHeight = 180;
-
-							var margin = {top: 25, right: 20, bottom: 50, left: 60}
-							  , width = svgWidth - margin.left - margin.right // Use the window's width 
-							  , height = svgHeight - margin.top - margin.bottom;
-
-							let svg = d3.select("svg#detail-1-line-1")
-											.attr("width", svgWidth)
-											.attr("height", svgHeight)
-											.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
-
-							var g = svg.append("g")
-									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-							let lineValues = [];
-
-							for (let i = 2015; i < 2021; i++) {
-								let value = {
-									date: i,
-									price: records[city][i + "-price"]
-								}
-
-								lineValues.push(value);
-							}
-
-							let xScale = d3.scaleTime().range([0, width]);
-
-							xScale.domain([d3.min(lineValues, function(d) { return d.date; }), d3.max(lineValues, function(d) { return d.date; })]);
-
-							let yScale = d3.scaleLinear().range([height, 0]);
-
-							yScale.domain([d3.min(lineValues, function(d) { return d.price; }), d3.max(lineValues, function(d) { return d.price; })]);
-
-
-							var line = d3.line()
-								.x(function(d) { return xScale(d.date); }) // set the x values for the line generator
-								.y(function(d) { return yScale(d.price); }) // set the y values for the line generator
-
-							let xAxis = g.append("g")
-								.attr("transform", "translate(0," + height + ")")
-								.call(d3.axisBottom(xScale))
-								.attr("class", "x-axis")
-								.append("text")
-								.attr("class", "label")
-								.attr("y", 40)
-								.attr("x", width)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.text("Year");
-
-							let yAxis = g.append("g")
-								.call(d3.axisLeft(yScale).tickFormat(function(d){
-									if (d >= 1000000) {
-										return d / 1000000 + "M";
-									} else if (d >= 1000) {
-										return d / 1000 + "K";
-									} else if (d < 1000) {
-										return d;
-									}
-								})
-								.ticks(10))
-								.attr("class", "y-axis")
-								.append("text")
-								.attr("x", 55)
-								.attr("y", -15)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.attr("class", "label")
-								.text("Average House Price");
-
-							g.append("path")
-								.datum(lineValues) // 10. Binds data to the line 
-								.attr("class", "line") // Assign a class for styling 
-								.attr('fill', 'none')
-								.attr('stroke', colorMain)
-								.attr('stroke-width', 1.5)
-								.attr('d', line);
-
-						}
-						function detailLine2() {
-							let svgHeight = 180;
-
-							var margin = {top: 25, right: 20, bottom: 50, left: 60}
-							  , width = svgWidth - margin.left - margin.right // Use the window's width 
-							  , height = svgHeight - margin.top - margin.bottom;
-
-							let svg = d3.select("svg#detail-1-line-2")
-											.attr("width", svgWidth)
-											.attr("height", svgHeight)
-											.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
-
-							var g = svg.append("g")
-									.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-							let lineValues = [];
-
-							for (let i = 2015; i < 2021; i++) {
-								let value = {
-									date: i,
-									count: records[city][i + "-count"]
-								}
-
-								lineValues.push(value);
-							}
-
-							let xScale = d3.scaleTime().range([0, width]);
-
-							xScale.domain([d3.min(lineValues, function(d) { return d.date; }), d3.max(lineValues, function(d) { return d.date; })]);
-
-							let yScale = d3.scaleLinear().range([height, 0]);
-
-							yScale.domain([d3.min(lineValues, function(d) { return d.count; }), d3.max(lineValues, function(d) { return d.count; })]);
-
-
-							var line = d3.line()
-								.x(function(d) { return xScale(d.date); }) // set the x values for the line generator
-								.y(function(d) { return yScale(d.count); }) // set the y values for the line generator
-
-							let xAxis = g.append("g")
-								.attr("transform", "translate(0," + height + ")")
-								.call(d3.axisBottom(xScale))
-								.attr("class", "x-axis")
-								.append("text")
-								.attr("class", "label")
-								.attr("y", 40)
-								.attr("x", width)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.text("Year");
-
-							let yAxis = g.append("g")
-								.call(d3.axisLeft(yScale))
-								.attr("class", "y-axis")
-								.append("text")
-								.attr("x", 55)
-								.attr("y", -15)
-								.attr("text-anchor", "end")
-								.attr("stroke", "#2d3666")
-								.attr("class", "label")
-								.text("Average House Price");
-
-							g.append("path")
-								.datum(lineValues) // 10. Binds data to the line 
-								.attr("class", "line") // Assign a class for styling 
-								.attr('fill', 'none')
-								.attr('stroke', colorMain)
-								.attr('stroke-width', 1.5)
-								.attr('d', line);
-						}
+						
+						d3.select("div.line-count").style("display", "none");
 					}
 
 					function compareCount(a, b) {
@@ -1679,9 +1558,384 @@
 
 						return comparison;
 					}
+
+					drawBarPrice();
+					drawBarCount();
+					drawLinePrice();
+					drawLineCount();
 				}
+				
+				function showDetail(d) {
+					let price = d["2015-2020-price"].toFixed(2);
+
+					if (d["2015-2020-price"] >= 1000000) {
+						price = (d["2015-2020-price"] / 1000000).toFixed(2) + "M";
+					} else if (d["2015-2020-price"] >= 1000) {
+						price = (d["2015-2020-price"] / 1000).toFixed(2) + "K";
+					}
+
+					const html = `
+						<table class="info-table" border="0" cellspacing="0" cellpadding="2">
+						<tbody>
+						<tr>
+						<th>City Name</th>
+						<td>${d.name}</td>
+						</tr>
+						<tr>
+						<th>2015 - 2020 Average Price</th>
+						<td>${price}</td>
+						</tr>
+						<tr>
+						<th>2015 - 2020 Count of House Sales</th>
+						<td>${d["2015-2020-count"]}</td>
+						</tr>
+						<tr>
+						</tr>
+						</tbody>
+						</table>
+					`;
+					body.html(html);
+					details.style("visibility", "visible");
+				}
+
+				function hideDetail() {
+					details.style("visibility", "hidden");
+				}
+				
+				drawMap();
+				drawPanel();
+			}
+
+			function drawDetail(city) {
+				let svgWidth = 320;
+
+				function detailBar1() {
+					let svgHeight = 70;
+
+					var margin = {top: 5, right: 20, bottom: 0, left: 20}
+					  , width = svgWidth - margin.left - margin.right // Use the window's width 
+					  , height = svgHeight - margin.top - margin.bottom;
+
+					let xScale = d3.scaleBand().range([0, width]).padding(0.4);
+					let yScale = d3.scaleLinear().range([height, 0]);
+
+					let svg = d3.select("svg#detail-1-bar-1")
+									.attr("width", svgWidth)
+									.attr("height", svgHeight)
+									.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+					var g = svg.append("g")
+							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+					let priceData = [records[city]["2015-2020-price"]];
+
+					xScale = d3.scaleLinear()
+							.domain([0, price.totalMaximun])
+							.range([0, width]);
+
+					yScale = d3.scaleBand()
+							.domain(city)
+							.range([0, height])
+							.padding(0.2);
+
+					let xAxis = g.append("g")
+						.attr("transform", "translate(0," + 45 + ")")
+						.call(d3.axisBottom(xScale).tickFormat(function(d){
+							if (d >= 1000000) {
+								return d / 1000000 + "M";
+							} else if (d >= 1000) {
+								return d / 1000 + "K";
+							} else if (d < 1000) {
+								return d;
+							}
+						})
+						.ticks(10))
+						.attr("class", "x-axis")
+						.append("text")
+						.attr("class", "label")
+						.attr("x", 150)
+						.attr("y", -40)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.text("Average House Price (2015-2020)");
+
+					// Create the bars' container
+					let bar = g.selectAll(".bar-price")
+						.data(priceData)
+						.enter()
+						.append("rect")
+						.attr("class", "bar-price")
+						.attr("x", 0)
+						.attr("y", 20)
+						.attr("width", function(d) {
+							return xScale(d);
+						})
+						.attr("height", 25)
+						.style("fill", colorMain);
+				}
+
+				function detailBar2() {
+					let svgHeight = 70;
+
+					var margin = {top: 5, right: 20, bottom: 0, left: 20}
+					  , width = svgWidth - margin.left - margin.right // Use the window's width 
+					  , height = svgHeight - margin.top - margin.bottom;
+
+					let xScale = d3.scaleBand().range([0, width]).padding(0.4);
+					let yScale = d3.scaleLinear().range([height, 0]);
+
+					let svg = d3.select("svg#detail-1-bar-2")
+									.attr("width", svgWidth)
+									.attr("height", svgHeight)
+									.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+					var g = svg.append("g")
+							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+					let countData = [records[city]["2015-2020-count"]];
+
+					xScale = d3.scaleLinear()
+							.domain([0, count.totalMaximun])
+							.range([0, width]);
+
+					yScale = d3.scaleBand()
+							.domain(city)
+							.range([0, height])
+							.padding(0.2);
+
+					let xAxis = g.append("g")
+						.attr("transform", "translate(0," + 45 + ")")
+						.call(d3.axisBottom(xScale))
+						.attr("class", "x-axis")
+						.append("text")
+						.attr("class", "label")
+						.attr("x", 152)
+						.attr("y", -40)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.text("Count of House Sales (2015-2020)");
+
+					// Create the bars' container
+					let bar = g.selectAll(".bar-count")
+						.data(countData)
+						.enter()
+						.append("rect")
+						.attr("class", "bar-count")
+						.attr("x", 0)
+						.attr("y", 20)
+						.attr("width", function(d) {
+							return xScale(d);
+						})
+						.attr("height", 25)
+						.style("fill", colorMain);
+				}
+
+				function detailLine1() {
+					let svgHeight = 180;
+
+					var margin = {top: 25, right: 20, bottom: 50, left: 60}
+					  , width = svgWidth - margin.left - margin.right // Use the window's width 
+					  , height = svgHeight - margin.top - margin.bottom;
+
+					let svg = d3.select("svg#detail-1-line-1")
+									.attr("width", svgWidth)
+									.attr("height", svgHeight)
+									.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+					var g = svg.append("g")
+							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+					let lineValues = [];
+
+					for (let i = 2015; i < 2021; i++) {
+						let value = {
+							date: i,
+							price: records[city][i + "-price"]
+						}
+
+						lineValues.push(value);
+					}
+
+					let xScale = d3.scaleTime().range([0, width]);
+
+					xScale.domain([d3.min(lineValues, function(d) { return d.date; }), d3.max(lineValues, function(d) { return d.date; })]);
+
+					let yScale = d3.scaleLinear().range([height, 0]);
+
+					yScale.domain([d3.min(lineValues, function(d) { return d.price; }), d3.max(lineValues, function(d) { return d.price; })]);
+
+
+					var line = d3.line()
+						.x(function(d) { return xScale(d.date); }) // set the x values for the line generator
+						.y(function(d) { return yScale(d.price); }) // set the y values for the line generator
+
+					let xAxis = g.append("g")
+						.attr("transform", "translate(0," + height + ")")
+						.call(d3.axisBottom(xScale))
+						.attr("class", "x-axis")
+						.append("text")
+						.attr("class", "label")
+						.attr("y", 40)
+						.attr("x", width)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.text("Year");
+
+					let yAxis = g.append("g")
+						.call(d3.axisLeft(yScale).tickFormat(function(d){
+							if (d >= 1000000) {
+								return d / 1000000 + "M";
+							} else if (d >= 1000) {
+								return d / 1000 + "K";
+							} else if (d < 1000) {
+								return d;
+							}
+						})
+						.ticks(10))
+						.attr("class", "y-axis")
+						.append("text")
+						.attr("x", 55)
+						.attr("y", -15)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.attr("class", "label")
+						.text("Average House Price");
+
+					g.append("path")
+						.datum(lineValues) // 10. Binds data to the line 
+						.attr("class", "line") // Assign a class for styling 
+						.attr('fill', 'none')
+						.attr('stroke', colorMain)
+						.attr('stroke-width', 1.5)
+						.attr('d', line);
+				}
+				
+				function detailLine2() {
+					let svgHeight = 180;
+
+					var margin = {top: 25, right: 20, bottom: 50, left: 60}
+					  , width = svgWidth - margin.left - margin.right // Use the window's width 
+					  , height = svgHeight - margin.top - margin.bottom;
+
+					let svg = d3.select("svg#detail-1-line-2")
+									.attr("width", svgWidth)
+									.attr("height", svgHeight)
+									.attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+					var g = svg.append("g")
+							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+					let lineValues = [];
+
+					for (let i = 2015; i < 2021; i++) {
+						let value = {
+							date: i,
+							count: records[city][i + "-count"]
+						}
+
+						lineValues.push(value);
+					}
+
+					let xScale = d3.scaleTime().range([0, width]);
+
+					xScale.domain([d3.min(lineValues, function(d) { return d.date; }), d3.max(lineValues, function(d) { return d.date; })]);
+
+					let yScale = d3.scaleLinear().range([height, 0]);
+
+					yScale.domain([d3.min(lineValues, function(d) { return d.count; }), d3.max(lineValues, function(d) { return d.count; })]);
+
+
+					var line = d3.line()
+						.x(function(d) { return xScale(d.date); }) // set the x values for the line generator
+						.y(function(d) { return yScale(d.count); }) // set the y values for the line generator
+
+					let xAxis = g.append("g")
+						.attr("transform", "translate(0," + height + ")")
+						.call(d3.axisBottom(xScale))
+						.attr("class", "x-axis")
+						.append("text")
+						.attr("class", "label")
+						.attr("y", 40)
+						.attr("x", width)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.text("Year");
+
+					let yAxis = g.append("g")
+						.call(d3.axisLeft(yScale))
+						.attr("class", "y-axis")
+						.append("text")
+						.attr("x", 55)
+						.attr("y", -15)
+						.attr("text-anchor", "end")
+						.attr("stroke", "#2d3666")
+						.attr("class", "label")
+						.text("Average House Price");
+
+					g.append("path")
+						.datum(lineValues) // 10. Binds data to the line 
+						.attr("class", "line") // Assign a class for styling 
+						.attr('fill', 'none')
+						.attr('stroke', colorMain)
+						.attr('stroke-width', 1.5)
+						.attr('d', line);
+				}
+				
+				detailBar1();
+				detailBar2();
+				detailLine1();
+				detailLine2();
 			}
 			
+			function cleanDetail() {
+				d3.selectAll("svg#detail-1-bar-1 > *").remove();
+				d3.selectAll("svg#detail-1-bar-2 > *").remove();
+				d3.selectAll("svg#detail-1-line-1 > *").remove();
+				d3.selectAll("svg#detail-1-line-2 > *").remove();
+			}
+			
+			function openPanelDetail(city) {
+				d3.select("div.details").style("display", "block");
+				d3.select("div.general").style("display", "none");
+				
+				cleanDetail();
+				drawDetail(city);
+			}
+			
+			function closePanelDetail() {
+				d3.select("div.details").style("display", "none");
+				d3.select("div.general").style("display", "block");
+			}
+			
+			function togglePanelModule() {
+				let barPrice = d3.select("div.bar-price");
+				let barCount = d3.select("div.bar-count");
+				let linePrice = d3.select("div.line-price");
+				let lineCount = d3.select("div.line-count");
+				
+				let trigger = d3.select("div#panel-trigger select").on("change", function() {
+					let val = d3.event.target.value;
+					barPrice.style("display", "none");
+					barCount.style("display", "none");
+					linePrice.style("display", "none");
+					lineCount.style("display", "none");
+					
+					d3.select("div"+val).style("display", "block");
+				});
+			}
+
+			function toggleDetailModule() {
+				d3.select("button#panel-close").on("click", function() {
+					cleanDetail();
+					closePanelDetail();
+				})
+			}
+			
+			loadSaleCount();
+			togglePanelModule();
+			toggleDetailModule();
 		</script>
 		<script src="../../ui/vendor/jquery.min.js"></script>
 		<script src="../../ui/vendor/popper.min.js"></script>
